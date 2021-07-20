@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -12,7 +15,7 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -26,11 +29,26 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    buildFeatures {
+        dataBinding = true
+    }
+//
+//    dataBinding {
+//        enabled = true
+//    }
+    lintOptions {
+        abortOnError false
+    }
     kotlinOptions {
         jvmTarget = '1.8'
     }
 }
-
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+}
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -38,7 +56,22 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
+
+    implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
+
+    implementation 'io.github.zaze359:zaze-common:1.0.0-SNAPSHOT'
+    implementation "io.github.zaze359:zaze-utils:1.0.0-SNAPSHOT"
+
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$rootProject.hiltVersion"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$rootProject.coroutinesVersion"
+
 }
