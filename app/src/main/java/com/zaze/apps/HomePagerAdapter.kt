@@ -15,6 +15,6 @@ class HomePagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
     }
 
     override fun createFragment(position: Int): Fragment {
-        return HomeViewPagerFragment()
+        return OverviewFragment()
     }
 }
