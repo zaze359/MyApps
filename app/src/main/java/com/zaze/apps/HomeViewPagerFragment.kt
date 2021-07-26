@@ -25,6 +25,4 @@ class HomeViewPagerFragment : AbsFragment() {
         binding.homeViewPager.adapter = HomePagerAdapter(this)
         return binding.root
     }
-
-
 }

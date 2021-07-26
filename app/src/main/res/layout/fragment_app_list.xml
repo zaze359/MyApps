@@ -1,0 +1,66 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/appSearchEt"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="搜索"
+            android:inputType="text"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <Button
+            android:id="@+id/appExtractBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="提取数据"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/appCountTv"
+            app:layout_constraintTop_toBottomOf="@id/appSearchEt" />
+
+        <TextView
+            android:id="@+id/appCountTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/appExtractBtn"
+            app:layout_constraintLeft_toRightOf="@id/appExtractBtn"
+            app:layout_constraintTop_toTopOf="@id/appExtractBtn"
+            tools:text="搜索到1111个应用" />
+
+        <CheckBox
+            android:id="@+id/appResolvingApkCb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="解析/sdcard/zaze/apk下apk"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appExtractBtn" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/appListRefreshLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appResolvingApkCb">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/appListRecycleView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+

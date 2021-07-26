@@ -13,6 +13,7 @@
     <color name="colorPrimaryVariant">@color/purple_700</color>
     <color name="colorOnPrimary">@color/white</color>
     <!-- Secondary brand color. -->
+    <color name="colorAccent">#ff80cbc4</color>
     <color name="colorSecondary">@color/teal_200</color>
     <color name="colorSecondaryVariant">@color/teal_700</color>
     <color name="colorOnSecondary">@color/black</color>

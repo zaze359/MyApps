@@ -1,31 +1,27 @@
-package com.zaze.apps
+package com.zaze.apps.viewmodels
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
 import android.os.Build
-import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.zaze.apps.base.AbsAndroidViewModel
-import com.zaze.apps.base.BaseApplication
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.ApplicationManager
 import com.zaze.apps.utils.TraceHelper
 import com.zaze.utils.AppUtil
 import com.zaze.utils.FileUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.coroutines.withContext
 
 /**
  * Description :
  * @author : ZAZE
  * @version : 2019-05-20 - 13:04
  */
-class AppListViewModel(application: Application) : AbsAndroidViewModel(application) {
-    private var matchStr = ""
+//@HiltViewModel
+class AppListViewModel constructor(application: Application) : AbsAndroidViewModel(application) {
+    private var matchHistory = ""
     val apkDir = "${application.getExternalFilesDir(null)}/zaze/apk"
     val baseDir = "${application.getExternalFilesDir(null)}/zaze/${Build.MODEL}"
 
@@ -43,35 +39,36 @@ class AppListViewModel(application: Application) : AbsAndroidViewModel(applicati
     val appData = MutableLiveData<List<AppShortcut>>()
 
     // --------------------------------------------------
-    private fun loadAllInstallApp(
-        appList: List<ApplicationInfo>,
-        packageSet: HashMap<String, AppShortcut>
-    ) {
-        appList.forEach {
-            packageSet[it.packageName] = ApplicationManager.getAppShortcut(it.packageName)
+
+    fun loadAppList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (isLoading()) {
+                return@launch
+            }
+            TraceHelper.beginSection("loadAppList")
+            dragLoading.postValue(true)
+            // --------------------------------------------------
+            packageSet.clear()
+            // --------------------------------------------------
+            FileUtil.deleteFile(baseDir)
+//                FileUtil.deleteFile(unExistsFile)
+//                FileUtil.deleteFile(extractFile)
+//                FileUtil.deleteFile(allFile)
+            // --------------------------------------------------
+            AppUtil.getInstalledApplications(application)
+//                .asSequence()
+//                .filter {
+//                    it.isSystemApp()
+//                }
+                .forEach {
+                    packageSet[it.packageName] = ApplicationManager.getAppShortcut(it.packageName)
+                }
+            // --------------------------------------------------
+            matchAppAndShow(appList = packageSet.values)
+            dragLoading.postValue(false)
+            TraceHelper.endSection("loadAppList")
         }
     }
-
-    private fun loadSystemApp(
-        appList: List<ApplicationInfo>,
-        packageSet: HashMap<String, AppShortcut>
-    ) {
-        appList.filter { it.flags and ApplicationInfo.FLAG_SYSTEM > 0 }
-            .forEach {
-                packageSet[it.packageName] = ApplicationManager.getAppShortcut(it.packageName)
-            }
-    }
-
-    private fun loadUnSystemApp(
-        appList: List<ApplicationInfo>,
-        packageSet: HashMap<String, AppShortcut>
-    ) {
-        appList.filter { it.flags and ApplicationInfo.FLAG_SYSTEM <= 0 }
-            .forEach {
-                packageSet[it.packageName] = ApplicationManager.getAppShortcut(it.packageName)
-            }
-    }
-
 
     // --------------------------------------------------
     fun extractApp() {
@@ -117,56 +114,6 @@ class AppListViewModel(application: Application) : AbsAndroidViewModel(applicati
     }
 
     // ------------------------------------------------------
-
-    private fun show(apps: MutableCollection<AppShortcut>) {
-        appData.postValue(apps.filter {
-            !TextUtils.isEmpty(it.sourceDir)
-        })
-    }
-
-    fun loadAppList() {
-        viewModelScope.launch {
-            if (isLoading()) {
-                return@launch
-            }
-            TraceHelper.beginSection("loadAppList")
-            dataLoading.postValue(true)
-            // --------------------------------------------------
-            packageSet.clear()
-            // --------------------------------------------------
-            val asyncClearHistory = async(Dispatchers.IO) {
-                FileUtil.deleteFile(baseDir)
-//                FileUtil.deleteFile(unExistsFile)
-//                FileUtil.deleteFile(extractFile)
-//                FileUtil.deleteFile(allFile)
-            }
-            val asyncGetInstalledApplications = async {
-                val allAppList = AppUtil.getInstalledApplications(application)
-                loadAllInstallApp(allAppList, packageSet)
-//                loadSystemApp(allAppList, packageSet)
-//                loadUnSystemApp(allAppList, packageSet)
-                // --------------------------------------------------
-                packageSet.remove(BaseApplication.getInstance().packageName)
-                // --------------------------------------------------
-                val filterSet = HashSet<String>()
-//                filterSet.addAll(getStringArray(R.array.un_keep_app).toList())
-                // --------------------------------------------------
-//                filterSet.addAll(getStringArray(R.array.apps).toList())
-                // 添加规则--------------------------------------------------
-//                filterSet.mapTo(packageList) { it }
-                // 移除规则--------------------------------------------------
-                filterSet.forEach {
-                    packageSet.remove(it)
-                }
-                matchApp(packageSet.values)
-            }
-            asyncClearHistory.await()
-            asyncGetInstalledApplications.await()
-            dataLoading.postValue(false)
-            TraceHelper.endSection("loadAppList")
-        }
-    }
-
     fun loadSdcardApk() {
 //        if (!isLoading()) {
 //            showProgress("加载apk")
@@ -193,36 +140,26 @@ class AppListViewModel(application: Application) : AbsAndroidViewModel(applicati
     }
 
     fun filterApp(matchStr: String) {
-        this.matchStr = matchStr
-        matchApp(packageSet.values)
+        viewModelScope.launch {
+            matchAppAndShow(matchStr, packageSet.values)
+        }
     }
 
-    private fun matchApp(appList: MutableCollection<AppShortcut>) {
-//        Observable.create<MutableCollection<AppShortcut>> { e ->
-//            e.onNext(appList)
-//            e.onComplete()
-//        }.subscribeOn(ThreadPlugins.ioScheduler())
-//            .flatMap {
-//                ObservableFromIterable(it)
-//            }.filter {
-//                matchStr.isEmpty() || it.packageName.contains(
-//                    matchStr,
-//                    true
-//                ) || it.name.contains(matchStr, true)
-//            }.toList()
-//            .toObservable()
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe(object : MyObserver<MutableCollection<AppShortcut>>(compositeDisposable) {
-//                override fun onNext(result: MutableCollection<AppShortcut>) {
-//                    super.onNext(result)
-//                    show(result)
-//                }
-//
-//                override fun onError(e: Throwable) {
-//                    super.onError(e)
-//                    show(HashSet())
-//                }
-//            })
+    private suspend fun matchAppAndShow(
+        matchStr: String = matchHistory,
+        appList: Collection<AppShortcut>
+    ) {
+        this.matchHistory = matchStr
+        val apps = withContext(Dispatchers.Default) {
+            appList.asSequence().filter {
+                matchStr.isEmpty()
+                        || it.packageName.contains(matchStr, true)
+                        || it.name.contains(matchStr, true)
+            }.filter {
+                !it.sourceDir.isNullOrEmpty()
+            }.toList()
+        }
+        appData.postValue(apps)
     }
 
     // --------------------------------------------------

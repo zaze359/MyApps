@@ -5,6 +5,11 @@
         android:icon="@drawable/ic_baseline_assessment_24"
         android:title="@string/overview" />
     <item
+        android:id="@+id/action_app_list"
+        android:icon="@drawable/ic_baseline_assessment_24"
+        android:title="@string/apps" />
+
+    <item
         android:id="@+id/action_home"
         android:icon="@drawable/ic_baseline_assessment_24"
         android:title="@string/home" />

@@ -26,7 +26,7 @@ fun Fragment.obtainActivityViewModelFactory(): ViewModelFactory {
 }
 
 @MainThread
-inline fun <reified VM : ViewModel> Fragment.myViewModel() = viewModels<VM> {
+inline fun <reified VM : ViewModel> Fragment.myViewModels() = viewModels<VM> {
     obtainViewModelFactory()
 }
 

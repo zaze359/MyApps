@@ -3,12 +3,17 @@ package com.zaze.apps
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.zaze.apps.base.AbsActivity
-import com.zaze.apps.databinding.ActivityAppListBinding
+import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.databinding.FragmentAppListBinding
 import com.zaze.apps.ext.myViewModels
+import com.zaze.apps.viewmodels.AppListViewModel
 import com.zaze.utils.ZOnClickHelper
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Description :
@@ -17,25 +22,38 @@ import com.zaze.utils.ZOnClickHelper
  * *
  * @version : 2017-04-17 05:15 1.0
  */
-class AppListActivity : AbsActivity() {
+@AndroidEntryPoint
+class AppListFragment : AbsFragment() {
     private val viewModel: AppListViewModel by myViewModels()
 
     private var adapter: AppListAdapter? = null
 
-    private lateinit var binding: ActivityAppListBinding
+    private lateinit var binding: FragmentAppListBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAppListBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        viewModel.appData.observe(this@AppListActivity, Observer { appList ->
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAppListBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.appData.observe(viewLifecycleOwner, Observer { appList ->
             binding.appCountTv.text = "查询到 ${appList.size}个应用"
             adapter?.setDataList(appList) ?: let {
-                adapter = AppListAdapter(this@AppListActivity, appList)
-                binding.appRecycleView.layoutManager = LinearLayoutManager(this@AppListActivity)
-                binding.appRecycleView.adapter = adapter
+                adapter = AppListAdapter(requireContext(), appList)
+                binding.appListRecycleView.layoutManager = LinearLayoutManager(requireContext())
+                binding.appListRecycleView.adapter = adapter
             }
         })
+
+        viewModel.dragLoading.observe(viewLifecycleOwner) {
+            binding.appListRefreshLayout.isRefreshing = it
+        }
 
         ZOnClickHelper.setOnClickListener(binding.appExtractBtn) {
             viewModel.extractApp()
@@ -58,6 +76,9 @@ class AppListActivity : AbsActivity() {
                 viewModel.filterApp(s.toString())
             }
         })
+        binding.appListRefreshLayout.setOnRefreshListener {
+            viewModel.loadAppList()
+        }
         viewModel.loadAppList()
     }
 }
