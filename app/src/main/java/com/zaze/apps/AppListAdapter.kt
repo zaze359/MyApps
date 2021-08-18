@@ -1,6 +1,7 @@
 package com.zaze.apps
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.view.View
@@ -8,7 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.adapter.BaseRecyclerAdapter
+import com.zaze.apps.base.adapter.BaseRecyclerAdapter
 import com.zaze.apps.base.BaseApplication
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.InvariantDeviceProfile
@@ -24,7 +25,8 @@ import java.io.File
  *
  * @version : 2017-04-17 - 17:21
  */
-class AppListAdapter(context: Context, data: Collection<AppShortcut>) : BaseRecyclerAdapter<AppShortcut, AppListAdapter.PackageHolder>(context, data) {
+class AppListAdapter(context: Context, data: Collection<AppShortcut>) :
+    BaseRecyclerAdapter<AppShortcut, AppListAdapter.PackageHolder>(context, data) {
 
     private val iconDpi: Int
 
@@ -65,7 +67,8 @@ class AppListAdapter(context: Context, data: Collection<AppShortcut>) : BaseRecy
         holder.itemAppPackageTv.text = "包名 : $packageName"
         holder.itemAppDirTv.text = "路径 : ${value.sourceDir}"
         holder.itemAppSignTv.text = "签名 : ${value.signingInfo}"
-        holder.itemAppTimeTv.text = "应用时间 : ${formatTime(value.firstInstallTime)}/${formatTime(value.lastUpdateTime)}"
+        holder.itemAppTimeTv.text =
+            "应用时间 : ${formatTime(value.firstInstallTime)}/${formatTime(value.lastUpdateTime)}"
         // --------------------------------------------------
         var drawable: Drawable? = null
         val application = AppUtil.getApplicationInfo(context, packageName)
@@ -93,6 +96,7 @@ class AppListAdapter(context: Context, data: Collection<AppShortcut>) : BaseRecy
                     ZLog.i(ZTag.TAG, "$it >> ${bundle.get(it)}")
                 }
             }
+            context.startActivity(Intent(context, AppDetailActivity::class.java))
 //            AppUtil.startApplication(context, packageName)
         }
     }

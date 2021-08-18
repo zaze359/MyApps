@@ -21,9 +21,9 @@ abstract class AbsSlidingPanelActivity : AbsActivity() {
         panelBinding = SlidingPanelLayoutBinding.inflate(layoutInflater)
     }
 
-    protected fun wrapSlidingMusicPanel(@LayoutRes resId: Int): View {
-        layoutInflater.inflate(resId, panelBinding.panelContentFrame)
-        panelBinding.panelBottomNav
+    protected fun wrapSlidingMusicPanel(@LayoutRes layoutResId: Int): View {
+        layoutInflater.inflate(layoutResId, panelBinding.panelContentFrame)
+//        panelBinding.panelBottomNav
         return panelBinding.root
     }
 

@@ -119,6 +119,5 @@ abstract class AbsPermissionsActivity : AbsThemeActivity(), EasyPermissions.Perm
     }
 
     open fun beforePermissionGranted() {
-
     }
 }

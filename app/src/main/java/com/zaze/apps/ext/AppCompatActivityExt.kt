@@ -9,19 +9,31 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModel
 
-fun AppCompatActivity.replaceFragment(fragment: Fragment, frameId: Int) {
+fun AppCompatActivity.replaceFragment(frameId: Int, fragment: Fragment, tag: String? = null) {
     supportFragmentManager.transact {
-        replace(frameId, fragment)
+        replace(frameId, fragment, tag)
     }
 }
 
-fun AppCompatActivity.addFragment(fragment: Fragment, tag: String) {
+fun AppCompatActivity.addFragment(frameId: Int, fragment: Fragment, tag: String) {
     supportFragmentManager.transact {
-        add(fragment, tag)
+        add(frameId, fragment, tag)
     }
 }
 
-fun AppCompatActivity.hideFragment(fragment: Fragment) {
+fun AppCompatActivity.showFragment(fragment: Fragment?) {
+    if (fragment == null) {
+        return
+    }
+    supportFragmentManager.transact {
+        show(fragment)
+    }
+}
+
+fun AppCompatActivity.hideFragment(fragment: Fragment?) {
+    if (fragment == null) {
+        return
+    }
     supportFragmentManager.transact {
         hide(fragment)
     }

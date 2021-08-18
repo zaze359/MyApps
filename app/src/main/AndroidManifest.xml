@@ -3,21 +3,28 @@
     package="com.zaze.apps">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApps"
-        android:name=".App"
         android:usesCleartextTraffic="false">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.MyApps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".AppDetailActivity"
+            android:theme="@style/Theme.MyApps" />
 
         <meta-data
             android:name="android.max_aspect"

@@ -8,6 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="blue">#62ADE6</color>
 
     <color name="colorPrimary">@color/purple_500</color>
     <color name="colorPrimaryVariant">@color/purple_700</color>
@@ -16,6 +17,7 @@
     <color name="colorAccent">#ff80cbc4</color>
     <color name="colorSecondary">@color/teal_200</color>
     <color name="colorSecondaryVariant">@color/teal_700</color>
+
     <color name="colorOnSecondary">@color/black</color>
 
 </resources>

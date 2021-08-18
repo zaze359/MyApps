@@ -2,6 +2,7 @@ package com.zaze.apps
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.zaze.apps.overview.OverviewFragment
 
 /**
  * Description :

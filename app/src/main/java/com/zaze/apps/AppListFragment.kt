@@ -30,6 +30,10 @@ class AppListFragment : AbsFragment() {
 
     private lateinit var binding: FragmentAppListBinding
 
+    override fun showLifeCycle(): Boolean {
+        return true
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -1,4 +1,4 @@
-package com.zaze.apps.adapter;
+package com.zaze.apps.base.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,7 +26,7 @@ import java.util.Collection;
 public abstract class BaseRecyclerAdapter<V, H extends RecyclerView.ViewHolder> extends DataRecyclerAdapter<V, H> implements ResourceAdapter {
     private final Context context;
 
-    public BaseRecyclerAdapter(Context context, @Nullable Collection<? extends V> data) {
+    public BaseRecyclerAdapter(@NotNull Context context, @Nullable Collection<? extends V> data) {
         super(data);
         this.context = context;
     }

@@ -1,13 +1,22 @@
 package com.zaze.apps
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import com.zaze.apps.base.AbsSlidingPanelActivity
-import com.zaze.apps.ext.replaceFragment
+import com.zaze.apps.ext.*
+import com.zaze.apps.overview.OverviewFragment
+import com.zaze.utils.log.ZLog
+import com.zaze.utils.log.ZTag
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class MainActivity : AbsSlidingPanelActivity() {
+    private var currentFragment: Fragment? = null
+
+    override fun showLifeCycle(): Boolean {
+        return true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,16 +27,31 @@ class MainActivity : AbsSlidingPanelActivity() {
             selectFragment(it.itemId)
             true
         }
-        selectFragment(R.id.action_overview)
+        if (savedInstanceState == null) {
+            selectFragment(R.id.action_overview)
+        } else {
+            currentFragment = supportFragmentManager.findFragmentById(R.id.mainFragmentContainer)
+        }
     }
 
-    private fun selectFragment(itemId: Int) =
-        supportFragmentManager.findFragmentByTag("$itemId")
-            ?: when (itemId) {
-                R.id.action_overview -> OverviewFragment()
-                R.id.action_app_list -> AppListFragment()
-                else -> HomeViewPagerFragment()
-            }.also {
-                replaceFragment(it, R.id.mainFragmentContainer)
-            }
+    private fun selectFragment(itemId: Int) {
+        val finedFragment = supportFragmentManager.findFragmentByTag("$itemId")
+        if (currentFragment != null && currentFragment == finedFragment) {
+            return
+        }
+        hideFragment(currentFragment)
+        if (finedFragment != null && finedFragment.isAdded) {
+            currentFragment = finedFragment
+            showFragment(finedFragment)
+            return
+        }
+        when (itemId) {
+            R.id.action_overview -> OverviewFragment()
+            R.id.action_app_list -> AppListFragment()
+            else -> HomeViewPagerFragment()
+        }.also {
+            currentFragment = it
+            addFragment(R.id.mainFragmentContainer, it, "$itemId")
+        }
+    }
 }

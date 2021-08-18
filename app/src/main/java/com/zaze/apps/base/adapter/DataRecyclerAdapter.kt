@@ -1,4 +1,4 @@
-package com.zaze.apps.adapter
+package com.zaze.apps.base.adapter
 
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
@@ -11,7 +11,7 @@ import java.util.*
  * @version : 1.0
  */
 abstract class DataRecyclerAdapter<V, H : RecyclerView.ViewHolder>(list: Collection<V>?) :
-        RecyclerView.Adapter<H>() {
+    RecyclerView.Adapter<H>() {
     private val dataList: MutableList<V> = ArrayList()
 
     init {

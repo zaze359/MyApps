@@ -1,9 +1,10 @@
-package com.zaze.apps
+package com.zaze.apps.overview
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentOverviewBinding
@@ -15,6 +16,11 @@ import com.zaze.apps.databinding.FragmentOverviewBinding
  */
 class OverviewFragment : AbsFragment() {
     private lateinit var binding: FragmentOverviewBinding
+    private val viewModel: OverviewViewModel by viewModels()
+
+    override fun showLifeCycle(): Boolean {
+        return true
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,6 +33,12 @@ class OverviewFragment : AbsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.overviewRecyclerView.let {
+            it.layoutManager = LinearLayoutManager(requireContext())
+        }
+        viewModel.overviewListData.observe(viewLifecycleOwner) {
+            binding.overviewRecyclerView.adapter = OverviewAdapter(requireContext(), it)
+        }
+        viewModel.loadOverview()
     }
 }

@@ -1,4 +1,4 @@
-package com.zaze.apps.adapter;
+package com.zaze.apps.base.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -15,18 +15,18 @@ import com.zaze.apps.R;
 import com.zaze.apps.base.BaseApplication;
 import com.zaze.utils.AppUtil;
 import com.zaze.utils.BmpUtil;
-import com.zaze.utils.FileUtil;
-import com.zaze.utils.JsonUtil;
-import com.zaze.utils.ThreadManager;
-import com.zaze.utils.ZStringUtil;
 import com.zaze.utils.cache.MemoryCacheManager;
-import com.zaze.utils.config.ConfigHelper;
 import com.zaze.utils.log.ZLog;
 import com.zaze.utils.log.ZTag;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 /**
  * Description : 对应用信息进行管理
@@ -40,24 +40,9 @@ public class ApplicationManager {
     private static InvariantDeviceProfile invariantDeviceProfile = new InvariantDeviceProfile();
 
     /**
-     * 记录最近的一个 uid, 仅用于获取uid时使用
-     */
-    private static ConfigHelper latelyUidFile = ConfigHelper.newInstance(FileUtil.getSDCardRoot() + "/zaze/LatelyUid.stats");
-
-    /**
-     * 记录最近一个versionCode
-     */
-    private static ConfigHelper latelyVersionFile = ConfigHelper.newInstance(FileUtil.getSDCardRoot() + "/zaze/LatelyVersion.stats");
-
-    /**
      * 默认logo缓存
      */
     private static SoftReference<Bitmap> defaultLogoBmpRef;
-
-    /**
-     * 默认下载icon缓存
-     */
-    private static SoftReference<Bitmap> defaultDownloadBmpRef;
 
     /**
      * 应用图标bitmap 缓存
@@ -66,8 +51,11 @@ public class ApplicationManager {
     /**
      * 应用信息缓存
      */
-    private static final LruCache<String, AppShortcut> SHORTCUT_CACHE = new LruCache<>(60);
+    private static final Map<String, AppShortcut> SHORTCUT_CACHE = new HashMap<>();
 
+
+
+    private static boolean allAppInitialized = false;
     // --------------------------------------------------
 
     private static void saveShortcutToCache(String packageName, AppShortcut appShortcut) {
@@ -105,7 +93,7 @@ public class ApplicationManager {
 
     public static void clearAllCache() {
         BITMAP_CACHE.evictAll();
-        SHORTCUT_CACHE.evictAll();
+        SHORTCUT_CACHE.clear();
     }
 
     public static void clearCache(String packageName) {
@@ -124,37 +112,6 @@ public class ApplicationManager {
     }
 
     // --------------------------------------------------
-
-    /**
-     * 通过uid获取应用信息
-     * 优先读取内存缓存
-     * 其次系统中读取
-     * 其次读取文件缓存
-     *
-     * @param uid uid
-     * @return 应用信息
-     */
-    public static AppShortcut getAppShortcutByUid(int uid) {
-        String key = Key.getAppUidKey(uid);
-        String packageName = MemoryCacheManager.getCache(key);
-        AppShortcut appShortcut = null;
-        if (TextUtils.isEmpty(packageName)) {
-            packageName = AppUtil.getNameForUid(BaseApplication.getInstance(), uid);
-            if (!TextUtils.isEmpty(packageName)) {
-                packageName = packageName.split(":")[0];
-            }
-        }
-        if (!TextUtils.isEmpty(packageName)) {
-            appShortcut = getAppShortcut(packageName);
-            if (appShortcut == null) {
-                appShortcut = JsonUtil.parseJson(latelyUidFile.getProperty(key), AppShortcut.class);
-            } else {
-                latelyUidFile.setProperty(key, JsonUtil.objToJson(appShortcut));
-                MemoryCacheManager.saveCache(key, packageName);
-            }
-        }
-        return appShortcut;
-    }
 
     /**
      * 根据包名获取应用信息
@@ -212,33 +169,19 @@ public class ApplicationManager {
      * @return AppShortcut
      */
     private static AppShortcut initAppShortcut(@NotNull final String packageName) {
-        PackageInfo packageInfo = AppUtil.getPackageInfo(BaseApplication.getInstance(), packageName, 64);
-        AppShortcut appShortcut = null;
-        int versionCode = 1;
-        if (packageInfo != null) {
-            versionCode = packageInfo.versionCode;
-            appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo);
-        }
-        if (appShortcut != null) {
-            saveShortcutToCache(packageName, appShortcut);
-            if (versionCode > 0) {
-                final int saveVersionCode = versionCode;
-                ThreadManager.getInstance().runInDiskIO(new Runnable() {
-                    @Override
-                    public void run() {
-                        latelyVersionFile.setProperty(Key.getAppVersionKey(packageName), String.valueOf(saveVersionCode));
-                    }
-                });
-            }
-        }
-        if (appShortcut == null) {
-            appShortcut = new AppShortcut();
-            appShortcut.setPackageName(packageName);
-            appShortcut.setInstalled(false);
-        }
-        return appShortcut;
-
+        return initAppShortcut(AppUtil.getPackageInfo(BaseApplication.getInstance(), packageName, 0));
     }
+
+    private static @Nullable
+    AppShortcut initAppShortcut(@Nullable PackageInfo packageInfo) {
+        if (packageInfo == null) {
+            return null;
+        }
+        AppShortcut appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo);
+        saveShortcutToCache(appShortcut.getPackageName(), appShortcut);
+        return appShortcut;
+    }
+
     // --------------------------------------------------
     // --------------------------------------------------
 
@@ -334,23 +277,21 @@ public class ApplicationManager {
         return name;
     }
 
-    public static int getAppLatelyVersionCode(String packageName) {
-        if (TextUtils.isEmpty(packageName)) {
-            return 1;
+    public static Map<String, AppShortcut> getInstalledApps() {
+        synchronized (SHORTCUT_CACHE) {
+            if (SHORTCUT_CACHE.isEmpty() || !allAppInitialized) {
+                List<PackageInfo> list = AppUtil.getInstalledPackages(BaseApplication.getInstance(), 0);
+                for (PackageInfo packageInfo : list) {
+                    AppShortcut shortcut = initAppShortcut(packageInfo);
+                    if (shortcut != null && !TextUtils.isEmpty(shortcut.getPackageName())) {
+                        SHORTCUT_CACHE.put(shortcut.getPackageName(), shortcut);
+                    }
+                }
+                allAppInitialized = true;
+            }
+            return SHORTCUT_CACHE;
         }
-        AppShortcut appShortcut = getAppShortcut(packageName);
-        int versionCode;
-        if (appShortcut != null) {
-            versionCode = appShortcut.getVersionCode();
-        } else {
-            versionCode = ZStringUtil.parseInt(latelyVersionFile.getProperty(Key.getAppVersionKey(packageName)));
-        }
-        if (versionCode <= 0) {
-            versionCode = 1;
-        }
-        return versionCode;
     }
-    // --------------------------------------------------
 
     // --------------------------------------------------
 }

@@ -24,6 +24,13 @@ abstract class AbsLogActivity : AppCompatActivity() {
 
     private val activityName = this.javaClass.simpleName
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (showLifeCycle()) {
+            ZLog.d(TAG, "$activityName onAttachedToWindow")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (showLifeCycle()) {
@@ -65,9 +72,9 @@ abstract class AbsLogActivity : AppCompatActivity() {
 
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
         if (showLifeCycle())
             ZLog.d(TAG, "$activityName onSaveInstanceState")
+        super.onSaveInstanceState(outState, outPersistentState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
