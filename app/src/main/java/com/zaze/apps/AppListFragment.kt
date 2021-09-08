@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.zaze.apps.adapters.AppListAdapter
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppListBinding
 import com.zaze.apps.ext.myViewModels
@@ -49,7 +50,7 @@ class AppListFragment : AbsFragment() {
         viewModel.appData.observe(viewLifecycleOwner, Observer { appList ->
             binding.appCountTv.text = "查询到 ${appList.size}个应用"
             adapter?.setDataList(appList) ?: let {
-                adapter = AppListAdapter(requireContext(), appList)
+                adapter = AppListAdapter(appList)
                 binding.appListRecycleView.layoutManager = LinearLayoutManager(requireContext())
                 binding.appListRecycleView.adapter = adapter
             }

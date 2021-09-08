@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.zaze.apps.base.AbsSlidingPanelActivity
 import com.zaze.apps.ext.*
-import com.zaze.apps.overview.OverviewFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 

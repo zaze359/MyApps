@@ -11,7 +11,6 @@ import com.zaze.apps.utils.AppShortcut
  * @version : 2021-08-02 - 13:30
  */
 open class CardItem(val type: Int) {
-
     object Type {
         const val OVERVIEW = 0
         const val APPSVIEW = 1
@@ -20,7 +19,7 @@ open class CardItem(val type: Int) {
     data class Overview(
         val title: String,
         val content: String,
-        @DrawableRes val iconRes: Int? = null,
+        @DrawableRes val iconRes: Int = 0,
         @ColorRes val backgroundColor: Int = R.color.white,
         val actionName: String? = null,
         val doAction: (() -> Unit)? = null
@@ -28,7 +27,7 @@ open class CardItem(val type: Int) {
 
     data class AppsView(
         val title: String,
-        @DrawableRes val iconRes: Int? = null,
+        @DrawableRes val iconRes: Int = 0,
         val apps: List<AppShortcut>,
         @ColorRes val backgroundColor: Int = R.color.white,
         val doAction: (() -> Unit)? = null

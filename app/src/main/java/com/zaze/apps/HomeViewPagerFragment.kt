@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.zaze.apps.adapters.HomePagerAdapter
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentHomeViewPagerBinding
 

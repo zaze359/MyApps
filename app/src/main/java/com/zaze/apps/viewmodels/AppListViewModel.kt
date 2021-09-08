@@ -154,7 +154,7 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
             appList.asSequence().filter {
                 matchStr.isEmpty()
                         || it.packageName.contains(matchStr, true)
-                        || it.name.contains(matchStr, true)
+                        || it.appName?.contains(matchStr, true) ?: false
             }.filter {
                 !it.sourceDir.isNullOrEmpty()
             }.toList()
@@ -169,7 +169,7 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
             if (appShortcut.isInstalled) {
                 FileUtil.writeToFile(
                     existsFile,
-                    "<item>$packageName</item><!--${appShortcut.name}-->\n",
+                    "<item>$packageName</item><!--${appShortcut.appName}-->\n",
                     true
                 )
             } else {
@@ -177,7 +177,7 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
             }
             FileUtil.writeToFile(
                 allFile,
-                "<item>$packageName</item><!--${appShortcut.name}-->\n",
+                "<item>$packageName</item><!--${appShortcut.appName}-->\n",
                 true
             )
         }

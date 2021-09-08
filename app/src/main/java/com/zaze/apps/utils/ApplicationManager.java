@@ -54,7 +54,6 @@ public class ApplicationManager {
     private static final Map<String, AppShortcut> SHORTCUT_CACHE = new HashMap<>();
 
 
-
     private static boolean allAppInitialized = false;
     // --------------------------------------------------
 
@@ -121,7 +120,8 @@ public class ApplicationManager {
      * @param packageName packageName
      * @return AppShortcut
      */
-    public static AppShortcut getAppShortcut(@NotNull String packageName) {
+    public static @NotNull
+    AppShortcut getAppShortcut(@NotNull String packageName) {
         AppShortcut appShortcut = getShortcutFromCache(packageName);
         if (appShortcut == null) {
             appShortcut = initAppShortcut(packageName);
@@ -143,7 +143,6 @@ public class ApplicationManager {
             packageInfo.applicationInfo.sourceDir = apkFilePath;
             packageInfo.applicationInfo.publicSourceDir = apkFilePath;
             AppShortcut appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo);
-            appShortcut.setSourceDir(apkFilePath);
             appShortcut.setCopyEnable(false);
             return appShortcut;
         } else {
@@ -168,16 +167,19 @@ public class ApplicationManager {
      * @param packageName packageName
      * @return AppShortcut
      */
-    private static AppShortcut initAppShortcut(@NotNull final String packageName) {
-        return initAppShortcut(AppUtil.getPackageInfo(BaseApplication.getInstance(), packageName, 0));
+    private static @NotNull
+    AppShortcut initAppShortcut(@NotNull final String packageName) {
+        return initAppShortcut(packageName, AppUtil.getPackageInfo(BaseApplication.getInstance(), packageName, 0));
     }
 
-    private static @Nullable
-    AppShortcut initAppShortcut(@Nullable PackageInfo packageInfo) {
+    private static @NotNull
+    AppShortcut initAppShortcut(@NotNull String packageName, @Nullable PackageInfo packageInfo) {
+        AppShortcut appShortcut;
         if (packageInfo == null) {
-            return null;
+            appShortcut = AppShortcut.Companion.empty(packageName);
+        } else {
+            appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo);
         }
-        AppShortcut appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo);
         saveShortcutToCache(appShortcut.getPackageName(), appShortcut);
         return appShortcut;
     }
@@ -198,18 +200,11 @@ public class ApplicationManager {
         if (bitmap != null) {
             return bitmap;
         }
-
-        ApplicationInfo applicationInfo = AppUtil.getApplicationInfo(
-                BaseApplication.getInstance(), packageName
-        );
+        AppShortcut appShortcut = getAppShortcut(packageName);
         Drawable appIcon = null;
+        ApplicationInfo applicationInfo = appShortcut.getApplicationInfo();
         if (applicationInfo != null) {
-            Resources resources;
-            try {
-                resources = BaseApplication.getInstance().getPackageManager().getResourcesForApplication(applicationInfo);
-            } catch (PackageManager.NameNotFoundException e) {
-                resources = null;
-            }
+            Resources resources = getAppResources(applicationInfo);
             if (resources != null) {
                 appIcon = getFullResIcon(resources, applicationInfo.icon);
             }
@@ -221,6 +216,17 @@ public class ApplicationManager {
             BITMAP_CACHE.put(packageName, bitmap);
         }
         return bitmap;
+    }
+
+    public static Resources getAppResources(ApplicationInfo application) {
+        if (application == null) {
+            return null;
+        }
+        try {
+            return BaseApplication.getInstance().getPackageManager().getResourcesForApplication(application);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
     }
 
     /**
@@ -243,7 +249,11 @@ public class ApplicationManager {
     }
 
     private static Drawable getFullResIcon(Resources resources, int iconId) {
-        return ResourcesCompat.getDrawableForDensity(resources, iconId, invariantDeviceProfile.getFillResIconDpi(), null);
+        try {
+            return ResourcesCompat.getDrawableForDensity(resources, iconId, invariantDeviceProfile.getFillResIconDpi(), null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static Bitmap makeDefaultIcon(Drawable drawable) {
@@ -257,21 +267,14 @@ public class ApplicationManager {
      *
      * @return 应用图标（默认ic_launcher）
      */
-    public static String getAppNameHasDefault(String packageName, String defaultName) {
-        if (TextUtils.isEmpty(packageName)) {
+    public static String getAppNameHasDefault(@Nullable String packageName, String defaultName) {
+        if (packageName == null || packageName.isEmpty()) {
             return defaultName;
         }
-        String name = MemoryCacheManager.getCache(Key.getAppNameKey(packageName));
+        String name = getAppShortcut(packageName).getAppName();
         if (TextUtils.isEmpty(name)) {
-            AppShortcut appShortcut = getAppShortcut(packageName);
-            if (appShortcut != null) {
-                name = appShortcut.getName();
-            }
-            if (TextUtils.isEmpty(name)) {
-                ZLog.e(ZTag.TAG_DEBUG, "未获取到应用名(%s), 使用默认(%s)", packageName, defaultName);
-                name = defaultName;
-            }
-            MemoryCacheManager.saveCache(Key.getAppNameKey(packageName), name);
+            ZLog.e(ZTag.TAG_DEBUG, "未获取到应用名(%s), 使用默认(%s)", packageName, defaultName);
+            name = defaultName;
         }
 //        XHLog.i(LcTag.TAG_DEBUG, "获取到应用名(%s) : (%s)", packageName, name);
         return name;
@@ -282,10 +285,8 @@ public class ApplicationManager {
             if (SHORTCUT_CACHE.isEmpty() || !allAppInitialized) {
                 List<PackageInfo> list = AppUtil.getInstalledPackages(BaseApplication.getInstance(), 0);
                 for (PackageInfo packageInfo : list) {
-                    AppShortcut shortcut = initAppShortcut(packageInfo);
-                    if (shortcut != null && !TextUtils.isEmpty(shortcut.getPackageName())) {
-                        SHORTCUT_CACHE.put(shortcut.getPackageName(), shortcut);
-                    }
+                    AppShortcut shortcut = initAppShortcut(packageInfo.packageName, packageInfo);
+                    SHORTCUT_CACHE.put(shortcut.getPackageName(), shortcut);
                 }
                 allAppInitialized = true;
             }

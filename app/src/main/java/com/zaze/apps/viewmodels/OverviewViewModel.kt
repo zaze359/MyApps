@@ -1,9 +1,10 @@
-package com.zaze.apps.overview
+package com.zaze.apps.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import com.zaze.apps.R
 import com.zaze.apps.base.AbsViewModel
 import com.zaze.apps.items.CardItem
+import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.ApplicationManager
 import com.zaze.apps.utils.SingleLiveEvent
 import com.zaze.utils.log.ZLog
@@ -17,12 +18,15 @@ import com.zaze.utils.log.ZTag
 class OverviewViewModel : AbsViewModel() {
     val overviewListData = MutableLiveData<List<CardItem>>()
     val showAppsAction = SingleLiveEvent<Unit>()
+    var installedApps = emptyList<AppShortcut>()
 
     fun loadOverview() {
         val list = ArrayList<CardItem>()
-        val apps = ApplicationManager.getInstalledApps().values
-        val allAppSize = apps.size
-        val systemAppSize = apps.count {
+        installedApps = ApplicationManager.getInstalledApps().values.toList().sortedBy {
+            it.lastUpdateTime
+        }
+        val allAppSize = installedApps.size
+        val systemAppSize = installedApps.count {
             it.isSystemApp()
         }
         list.add(
@@ -38,14 +42,14 @@ class OverviewViewModel : AbsViewModel() {
         )
         // --------------------------------------------------
         list.add(
-            CardItem.Overview(
+            CardItem.AppsView(
                 title = "最近更新应用",
-                content = "xxxxx",
+                apps = installedApps.subList(0, 5),
                 iconRes = R.drawable.ic_baseline_apps_24,
-                actionName = "click"
+                doAction = {
+                }
             )
         )
-        ZLog.i(ZTag.TAG, "list: ${list.size} ")
         overviewListData.postValue(list)
     }
 }

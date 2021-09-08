@@ -1,8 +1,8 @@
-package com.zaze.apps
+package com.zaze.apps.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.zaze.apps.overview.OverviewFragment
+import com.zaze.apps.OverviewFragment
 
 /**
  * Description :

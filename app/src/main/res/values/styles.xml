@@ -13,7 +13,28 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">20sp</item>
-<!--        <item name="android:letterSpacing">0.0125</item>-->
+        <!--        <item name="android:letterSpacing">0.0125</item>-->
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
+
+    <style name="TextSize">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextSize.Small">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextSize.H1">
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="TextSize.H2">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="TextSize.H3">
+        <item name="android:textSize">20sp</item>
+    </style>
+
 </resources>
