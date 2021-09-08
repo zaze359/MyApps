@@ -17,7 +17,7 @@ import com.zaze.apps.ext.visible
  * @author : zaze
  * @version : 2021-08-02 - 10:40
  */
-class OverviewHolder(itemView: View) : CardHolder(itemView) {
+class OverviewHolder(itemView: View) : CardHolder<CardItem.Overview>(itemView) {
     companion object {
         fun create(viewGroup: ViewGroup): OverviewHolder {
             return OverviewHolder(
@@ -32,7 +32,7 @@ class OverviewHolder(itemView: View) : CardHolder(itemView) {
     val overviewCardContentTv: TextView = itemView.findViewById(R.id.overviewCardContentTv)
     val overviewCardButton: Button = itemView.findViewById(R.id.overviewCardButton)
 
-    override fun setup(value: CardItem) {
+    override fun doSetup(value: CardItem.Overview) {
         if (value !is CardItem.Overview) {
             return
         }
@@ -41,11 +41,11 @@ class OverviewHolder(itemView: View) : CardHolder(itemView) {
         }
         overviewCardTitleTv.text = value.title
         overviewCardContentTv.text = value.content
-        if (value.action.isNullOrEmpty()) {
+        if (value.actionName.isNullOrEmpty()) {
             overviewCardButton.gone()
         } else {
             overviewCardButton.visible()
-            overviewCardButton.text = value.action
+            overviewCardButton.text = value.actionName
         }
         overviewCardButton.setOnClickListener {
             value.doAction?.invoke()
@@ -55,6 +55,6 @@ class OverviewHolder(itemView: View) : CardHolder(itemView) {
             ContextCompat.getColor(itemView.context, value.backgroundColor),
             PorterDuff.Mode.SRC_ATOP
         )
-//        itemView.setBackgroundColor(itemView.resources.getColor(value.backgroundColor))
+        //        itemView.setBackgroundColor(itemView.resources.getColor(value.backgroundColor))
     }
 }

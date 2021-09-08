@@ -27,11 +27,10 @@ class OverviewViewModel : AbsViewModel() {
         }
         list.add(
             CardItem.Overview(
-                CardItem.Type.OVERVIEW,
                 title = "应用安装情况",
                 content = "${allAppSize}个应用  ${allAppSize - systemAppSize}普通应用  ${systemAppSize}系统应用",
                 iconRes = R.drawable.ic_baseline_assessment_24,
-                action = "更多",
+                actionName = "更多",
                 doAction = {
                     showAppsAction.value = null
                 }
@@ -40,11 +39,10 @@ class OverviewViewModel : AbsViewModel() {
         // --------------------------------------------------
         list.add(
             CardItem.Overview(
-                CardItem.Type.OVERVIEW,
                 title = "最近更新应用",
                 content = "xxxxx",
                 iconRes = R.drawable.ic_baseline_apps_24,
-                action = "click"
+                actionName = "click"
             )
         )
         ZLog.i(ZTag.TAG, "list: ${list.size} ")
