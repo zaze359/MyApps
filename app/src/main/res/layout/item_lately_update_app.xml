@@ -26,11 +26,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/lately_update_app_update_time_tv"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/lately_update_app_iv"
             tools:text="我的应用" />
+
+        <TextView
+            android:id="@+id/lately_update_app_update_time_tv"
+            style="@style/TextSize.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lately_update_app_name_tv"
+            tools:text="2021.09.09" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

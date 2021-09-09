@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--  设置背景色  -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="4dp" />
+            <gradient
+                android:endColor="@color/colorProgressBackground"
+                android:startColor="@color/colorProgressBackground" />
+        </shape>
+    </item>
+
+    <!--    <item android:id="@android:id/progress">-->
+    <!--        <clip android:clipOrientation="horizontal">-->
+    <!--            <shape>-->
+    <!--                <corners android:radius="4dp" />-->
+    <!--                <gradient-->
+    <!--                    android:endColor="#4679D9"-->
+    <!--                    android:startColor="#4679D9" />-->
+    <!--            </shape>-->
+    <!--        </clip>-->
+    <!--    </item>-->
+
+    <item android:id="@android:id/progress">
+        <scale android:scaleWidth="100%">
+            <shape>
+                <corners android:radius="4dp" />
+                <gradient
+                    android:angle="45"
+                    android:endColor="@color/colorProgress"
+                    android:startColor="@color/colorProgress" />
+            </shape>
+        </scale>
+    </item>
+
+    <item android:id="@android:id/secondaryProgress">
+        <scale android:scaleWidth="100%">
+            <shape>
+                <corners android:radius="4dp" />
+                <gradient
+                    android:endColor="@color/colorSecondaryProgress"
+                    android:startColor="@color/colorSecondaryProgress" />
+            </shape>
+        </scale>
+    </item>
+
+</layer-list>

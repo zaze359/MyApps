@@ -2,6 +2,7 @@ package com.zaze.apps
 
 import com.zaze.apps.base.BaseApplication
 import dagger.hilt.android.HiltAndroidApp
+import java.lang.IllegalStateException
 
 /**
  * Description :
@@ -11,5 +12,8 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class App : BaseApplication() {
 
+    companion object {
+        fun getInstance() = BaseApplication.getInstance() as App
+    }
 
 }

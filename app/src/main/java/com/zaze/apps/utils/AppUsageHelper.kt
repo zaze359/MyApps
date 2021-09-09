@@ -3,20 +3,21 @@ package com.zaze.apps.utils
 import android.app.AppOpsManager
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import com.zaze.utils.date.DateUtil
 
 object AppUsageHelper {
     private const val TAG = "AppUsageHelper"
     private const val PACKAGE_NAME_UNKNOWN = "unknown"
-
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun getUsageStatsManager(context: Context): UsageStatsManager? {
@@ -27,11 +28,7 @@ object AppUsageHelper {
      * 检测是否有获取应用使用量权限
      */
     fun checkAppUsagePermission(context: Context): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return true
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return isGrantedUsagePermission(context)
         }
         val time = System.currentTimeMillis()
@@ -43,7 +40,7 @@ object AppUsageHelper {
         ).isNullOrEmpty()
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun isGrantedUsagePermission(context: Context): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         try {
@@ -69,17 +66,11 @@ object AppUsageHelper {
     /**
      * 请求获取应用使用量权限
      */
-    fun requestAppUsagePermission(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            try {
-                context.startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                Log.e(TAG, "ACTION_USAGE_ACCESS_SETTINGS FAIL!", e)
-            }
-        }
+    fun requestAppUsagePermission(launcher: ActivityResultLauncher<Intent>) {
+        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+        launcher.launch(intent)
     }
+
 
     fun getTopActivityPackageName(context: Context): String {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

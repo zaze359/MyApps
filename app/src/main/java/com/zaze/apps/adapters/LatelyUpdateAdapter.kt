@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.base.adapter.BaseRecyclerAdapter
 import com.zaze.apps.databinding.ItemLatelyUpdateAppBinding
 import com.zaze.apps.utils.AppShortcut
+import com.zaze.utils.date.DateUtil
 
 /**
  * 最近更新应用信息
@@ -24,8 +25,10 @@ class LatelyUpdateAdapter(data: Collection<AppShortcut>?) :
     }
 
     override fun onBindView(holder: LatelyUpdateHolder, value: AppShortcut, position: Int) {
-        holder.binding.latelyUpdateAppNameTv.text = value.appName
         holder.binding.latelyUpdateAppIv.setImageBitmap(value.getAppIcon())
+        holder.binding.latelyUpdateAppNameTv.text = value.appName
+        holder.binding.latelyUpdateAppUpdateTimeTv.text =
+            DateUtil.timeMillisToString(value.lastUpdateTime, "yyyy.MM.dd")
     }
 
 

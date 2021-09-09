@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
 import com.zaze.utils.log.ZLog
+import com.zaze.utils.log.ZTag
 
 /**
  * Description :
@@ -15,7 +16,7 @@ abstract class AbsLogActivity : AppCompatActivity() {
 
     companion object {
         var globalLog = false
-        private const val TAG = "LifeCycle"
+        private const val TAG = "${ZTag.TAG}LifeCycle"
     }
 
     open fun showLifeCycle(): Boolean {

@@ -10,10 +10,10 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AbsSlidingPanelActivity() {
     private var currentFragment: Fragment? = null
-
-    override fun showLifeCycle(): Boolean {
-        return true
-    }
+//
+//    override fun showLifeCycle(): Boolean {
+//        return true
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

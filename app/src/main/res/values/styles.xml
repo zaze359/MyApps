@@ -37,4 +37,9 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <style name="noScrollMode">
+        <item name="android:scrollbars">none</item>
+        <item name="android:overScrollMode">never</item>
+    </style>
+
 </resources>

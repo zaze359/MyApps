@@ -1,7 +1,11 @@
 package com.zaze.apps.ext
 
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 import com.zaze.utils.ZOnClickHelper
+
+fun <T : Any> MutableLiveData<T>.action() = postValue(null)
+
 
 fun View.visible() {
     this.visibility = View.VISIBLE

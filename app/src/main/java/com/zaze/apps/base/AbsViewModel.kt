@@ -13,12 +13,12 @@ open class AbsViewModel : ViewModel() {
     /**
      * 拖拽刷新loading
      */
-    val dragLoading = MutableLiveData<Boolean>()
+    val dragLoading = SingleLiveEvent<Boolean>()
 
     /**
      * 数据加载状态
      */
-    val dataLoading = MutableLiveData<Boolean>()
+    val dataLoading = SingleLiveEvent<Boolean>()
 
     // --------------------------------------------------
     // obtain时已默认 observe

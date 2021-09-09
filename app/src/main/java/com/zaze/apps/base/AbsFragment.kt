@@ -10,6 +10,7 @@ import androidx.annotation.DimenRes
 import androidx.fragment.app.Fragment
 import com.zaze.utils.ToastUtil
 import com.zaze.utils.log.ZLog
+import com.zaze.utils.log.ZTag
 
 /**
  * Description :
@@ -20,7 +21,7 @@ abstract class AbsFragment : Fragment() {
 
     companion object {
         var globalLog = false
-        private const val TAG = "LifeCycle"
+        private const val TAG = "${ZTag.TAG}LifeCycle"
     }
 
     open fun showLifeCycle(): Boolean {
@@ -50,6 +51,30 @@ abstract class AbsFragment : Fragment() {
         if (showLifeCycle())
             ZLog.i(TAG, "$fragmentName onViewCreated")
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (showLifeCycle())
+            ZLog.i(TAG, "$fragmentName onResume")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (showLifeCycle())
+            ZLog.i(TAG, "$fragmentName onStart")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (showLifeCycle())
+            ZLog.i(TAG, "$fragmentName onStop")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (showLifeCycle())
+            ZLog.i(TAG, "$fragmentName onPause")
     }
 
     override fun onAttach(context: Context) {

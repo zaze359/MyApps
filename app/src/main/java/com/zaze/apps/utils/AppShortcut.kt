@@ -1,5 +1,6 @@
 package com.zaze.apps.utils
 
+import android.app.usage.StorageStatsManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ApplicationInfo
@@ -7,13 +8,17 @@ import android.content.pm.PackageInfo
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.storage.StorageManager
+import androidx.annotation.RequiresApi
 import com.google.gson.annotations.Expose
-import com.zaze.apps.base.BaseApplication
+import com.zaze.apps.App
 import com.zaze.utils.AppUtil
 import com.zaze.utils.SignaturesUtil.getSignatures
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import java.lang.Exception
+import java.util.*
+
 
 /**
  * Description : 应用快捷信息(汇总最新的 Applicaiton 和 packageInfo)
@@ -46,7 +51,7 @@ data class AppShortcut(
                     field
                 }
                 isInstalled -> {
-                    field = AppUtil.getPackageInfo(BaseApplication.getInstance(), packageName)
+                    field = AppUtil.getPackageInfo(App.getInstance(), packageName)
                     field
                 }
                 else -> {
@@ -65,7 +70,7 @@ data class AppShortcut(
                     field
                 }
                 isInstalled -> {
-                    field = AppUtil.getApplicationInfo(BaseApplication.getInstance(), packageName)
+                    field = AppUtil.getApplicationInfo(App.getInstance(), packageName)
                     field
                 }
                 else -> {
@@ -81,7 +86,6 @@ data class AppShortcut(
 
         @JvmStatic
         fun transform(context: Context, packageInfo: PackageInfo): AppShortcut {
-
             val applicationInfo: ApplicationInfo? = packageInfo.applicationInfo
             val appShortcut = AppShortcut(
                 packageName = packageInfo.packageName,
@@ -121,10 +125,33 @@ data class AppShortcut(
         return ApplicationManager.getAppIconHasDefault(packageName)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun queryStorageStats() {
+        val context = App.getInstance()
+        val storageManager = context
+            .getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        val storageStatsManager = context
+            .getSystemService(Context.STORAGE_STATS_SERVICE) as StorageStatsManager
+        storageManager.storageVolumes.forEach { volume ->
+            val uuid = volume.uuid?.let {
+                UUID.fromString(it)
+            } ?: StorageManager.UUID_DEFAULT
+            val storageStats = storageStatsManager.queryStatsForPackage(
+                uuid,
+                packageName,
+                android.os.Process.myUserHandle()
+            )
+            ZLog.i(
+                ZTag.TAG,
+                "$appName ${volume.getDescription(context)} appBytes: ${storageStats.appBytes}; cacheBytes: ${storageStats.cacheBytes}; dataBytes: ${storageStats.dataBytes}"
+            )
+        }
+    }
+
     fun getResource(): Resources? {
         return applicationInfo?.let {
             try {
-                BaseApplication.getInstance().packageManager.getResourcesForApplication(it)
+                App.getInstance().packageManager.getResourcesForApplication(it)
             } catch (e: Exception) {
                 null
             }

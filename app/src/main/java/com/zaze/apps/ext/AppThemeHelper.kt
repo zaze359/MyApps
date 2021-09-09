@@ -16,13 +16,13 @@ import com.zaze.utils.ColorUtil
  * @version : 2021-07-22 - 15:29
  */
 fun Activity.setImmersion(isFullScreen: Boolean = false, color: Int = R.color.colorPrimary) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-        return
-    }
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        return
-    }
+//    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+//        return
+//    }
+//    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+//        return
+//    }
     if (isFullScreen) {
         ScreenUtils.addLayoutFullScreen(window)
         window.decorView.systemUiVisibility =
