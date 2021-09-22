@@ -2,23 +2,19 @@ package com.zaze.apps.viewmodels
 
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.zaze.apps.App
 import com.zaze.apps.R
 import com.zaze.apps.base.AbsViewModel
-import com.zaze.apps.base.BaseApplication
 import com.zaze.apps.data.Card
 import com.zaze.apps.ext.action
-import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.utils.ApplicationManager
 import com.zaze.apps.utils.SingleLiveEvent
 import com.zaze.utils.DescriptionUtil
-import com.zaze.utils.DeviceUtil
+import com.zaze.utils.StorageLoader
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -87,13 +83,16 @@ class OverviewViewModel : AbsViewModel() {
                 }
             }
             val unit = 1024 * 1024
+            val storageInfo = StorageLoader.loadStorageStats(App.getInstance())
             list.add(
                 Card.Progress(
                     title = "存储情况",
-                    max = (DeviceUtil.getSdTotalSpace() / unit).toInt(),
+                    max = (storageInfo.totalBytes / unit).toInt(),
                     progresses = listOf(
-                        Card.Progress.Item(tag = "Apps", progress = 1000),
-                        Card.Progress.Item(tag = "Apps", progress = 1000),
+                        Card.Progress.Item(
+                            tag = "空闲",
+                            progress = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
+                        ),
                         Card.Progress.Item(tag = "Apps", progress = 1000),
                     ),
                     trans = {

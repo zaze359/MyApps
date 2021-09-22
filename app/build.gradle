@@ -80,7 +80,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle"
 
 //    implementation 'io.github.zaze359:zaze-common:1.0.0-SNAPSHOT'
-    implementation "io.github.zaze359:zaze-utils:1.0.0-SNAPSHOT"
+    implementation "io.github.zaze359:zaze-utils:1.0.1-SNAPSHOT"
     implementation 'pub.devrel:easypermissions:3.0.0'
 
 
