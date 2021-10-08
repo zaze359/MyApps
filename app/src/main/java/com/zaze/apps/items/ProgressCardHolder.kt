@@ -1,5 +1,7 @@
 package com.zaze.apps.items
 
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.zaze.apps.adapters.ProgressSubAdapter
 import com.zaze.apps.data.Card
 import com.zaze.apps.databinding.ItemCardProgressBinding
 
@@ -10,6 +12,7 @@ import com.zaze.apps.databinding.ItemCardProgressBinding
  */
 class ProgressCardHolder(private val binding: ItemCardProgressBinding) :
     CardHolder<Card.Progress>(binding.root) {
+
 
     override fun doSetup(value: Card.Progress) {
         binding.progressTitleTv.text = value.title
@@ -26,5 +29,10 @@ class ProgressCardHolder(private val binding: ItemCardProgressBinding) :
             it.max = value.max
             it.progress = progress
         }
+        binding.root.setOnClickListener {
+            value.doAction?.invoke()
+        }
+        binding.progressRecyclerView.layoutManager = LinearLayoutManager(binding.root.context)
+        binding.progressRecyclerView.adapter = ProgressSubAdapter(value.progresses, value.max)
     }
 }

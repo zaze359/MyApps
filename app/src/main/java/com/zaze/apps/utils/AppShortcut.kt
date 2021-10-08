@@ -121,7 +121,7 @@ data class AppShortcut(
         return flags and ApplicationInfo.FLAG_SYSTEM != 0
     }
 
-    fun getAppIcon(): Bitmap {
+    fun getAppIcon(): Bitmap? {
         return ApplicationManager.getAppIconHasDefault(packageName)
     }
 

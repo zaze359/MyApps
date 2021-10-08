@@ -1,13 +1,10 @@
 package com.zaze.apps.items
 
-import android.graphics.PorterDuff
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.adapters.LatelyUpdateAdapter
 import com.zaze.apps.data.Card
 import com.zaze.apps.databinding.ItemCardAppsBinding
-import com.zaze.apps.ext.onClick
 
 /**
  * Description :
@@ -23,9 +20,6 @@ class AppsCardHolder(private val binding: ItemCardAppsBinding) :
         binding.appsRecyclerView.let {
             it.layoutManager = LinearLayoutManager(itemView.context, RecyclerView.HORIZONTAL, false)
             it.adapter = LatelyUpdateAdapter(value.apps)
-        }
-        binding.root.onClick {
-            value.doAction?.invoke()
         }
     }
 }

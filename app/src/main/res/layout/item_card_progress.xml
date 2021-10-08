@@ -54,7 +54,7 @@
                 tools:secondaryProgress="25" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/apps_recycler_view"
+                android:id="@+id/progress_recycler_view"
                 style="@style/noScrollMode"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

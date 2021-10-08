@@ -30,7 +30,9 @@ buildscript {
 allprojects {
     repositories {
 //        maven { url 'http://localhost:8081/repository/maven-public' }
+
         maven { url 'https://s01.oss.sonatype.org/content/groups/public' }
+//        maven { url 'http://localhost:8081/repository/zaze/' }
 //        maven { url "https://oss.sonatypTe.org/content/repositories/snapshots" }
 //        maven { url "https://repo1.maven.org/maven2/" }
         maven { url 'https://maven.aliyun.com/repository/public' }

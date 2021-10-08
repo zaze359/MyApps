@@ -18,8 +18,8 @@
 
             <ImageView
                 android:id="@+id/overview_logo_iv"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:contentDescription="@null"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toLeftOf="@+id/overview_title_tv"
@@ -29,13 +29,12 @@
             <TextView
                 android:id="@+id/overview_title_tv"
                 style="@style/TextSize.H2"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 app:layout_constraintBottom_toBottomOf="@id/overview_logo_iv"
                 app:layout_constraintLeft_toRightOf="@id/overview_logo_iv"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@id/overview_logo_iv"
                 tools:text="@string/app_name" />
 
@@ -66,6 +65,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
 
 </layout>

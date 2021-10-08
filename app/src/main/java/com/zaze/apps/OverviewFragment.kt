@@ -1,6 +1,5 @@
 package com.zaze.apps
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -55,6 +54,9 @@ class OverviewFragment : AbsFragment() {
         viewModel.showAppsAction.observe(viewLifecycleOwner) {}
         viewModel.requestAppUsagePermissionAction.observe(viewLifecycleOwner) {
             AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
+        }
+        viewModel.settingsAction.observe(viewLifecycleOwner) {
+            startActivity(it)
         }
         lifecycleScope.launchWhenResumed {
             viewModel.loadOverview()

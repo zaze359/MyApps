@@ -1,6 +1,7 @@
 package com.zaze.apps.viewmodels
 
-import android.os.Build
+import android.content.Intent
+import android.provider.Settings
 import androidx.lifecycle.MutableLiveData
 import com.zaze.apps.App
 import com.zaze.apps.R
@@ -27,13 +28,13 @@ class OverviewViewModel : AbsViewModel() {
     val showAppsAction = SingleLiveEvent<Unit>()
 
     val requestAppUsagePermissionAction = SingleLiveEvent<Unit>()
-
+    val settingsAction = SingleLiveEvent<Intent>()
 //    var installedApps = emptyList<AppShortcut>()
 
     suspend fun loadOverview() {
         val list = ArrayList<Card>()
         val installedApps =
-            ApplicationManager.getInstalledApps().values.toList().sortedByDescending {
+            ApplicationManager.installedApps.values.toList().sortedByDescending {
                 it.lastUpdateTime
             }
         // --------------------------------------------------
@@ -45,10 +46,10 @@ class OverviewViewModel : AbsViewModel() {
         list.add(
             Card.Overview(
                 title = "应用统计: ${allAppSize}个",
-                content = "${allAppSize - systemAppSize}普通应用  ${systemAppSize}系统应用",
+                content = "${allAppSize - systemAppSize}个普通应用  ${systemAppSize}个系统应用",
                 iconRes = R.drawable.ic_baseline_assessment_24,
                 doAction = {
-                    showAppsAction.value = null
+                    showAppsAction.action()
                 }
             )
         )
@@ -72,33 +73,35 @@ class OverviewViewModel : AbsViewModel() {
                     title = "最近更新TOP${apps.size}",
                     apps = apps,
                     iconRes = R.drawable.ic_baseline_apps_24,
-                    doAction = {
-                    }
                 )
             )
             // --------------------------------------------------
-            installedApps.forEach {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    it.queryStorageStats()
-                }
-            }
-            val unit = 1024 * 1024
+            val unit = StorageLoader.StorageInfo.UNIT * StorageLoader.StorageInfo.UNIT
             val storageInfo = StorageLoader.loadStorageStats(App.getInstance())
+            val usedSpace = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
+            val appsSpace = 0
+            val transFun = { it: Int ->
+                DescriptionUtil.toByteUnit(it.toLong() * unit)
+            }
             list.add(
                 Card.Progress(
                     title = "存储情况",
                     max = (storageInfo.totalBytes / unit).toInt(),
+                    trans = transFun,
                     progresses = listOf(
-                        Card.Progress.Item(
-                            tag = "空闲",
-                            progress = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
+                        Card.Progress.Sub(
+                            tag = "Apps",
+                            trans = transFun,
+                            progress = appsSpace
                         ),
-                        Card.Progress.Item(tag = "Apps", progress = 1000),
+                        Card.Progress.Sub(
+                            tag = "Others",
+                            trans = transFun,
+                            progress = usedSpace - appsSpace
+                        ),
                     ),
-                    trans = {
-                        DescriptionUtil.toByteUnit(it.toLong() * unit)
-                    },
                     doAction = {
+                        settingsAction.postValue(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
                     }
                 )
             )
