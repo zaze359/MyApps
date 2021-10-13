@@ -1,8 +1,11 @@
 package com.zaze.apps
 
 import android.os.Bundle
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.zaze.apps.base.AbsSlidingPanelActivity
+import com.zaze.apps.databinding.ActivityMainBinding
+import com.zaze.apps.databinding.SlidingPanelLayoutBinding
 import com.zaze.apps.ext.*
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,9 +20,11 @@ class MainActivity : AbsSlidingPanelActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(wrapSlidingMusicPanel(R.layout.activity_main))
-//        getBottomNavigation().setOnNavigationItemReselectedListener {
-//        }
+//        setContentView(wrapSlidingMusicPanel(R.layout.activity_main))
+        //
+        val dataBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(wrapSlidingMusicPanel(dataBinding.root))
+        //
         getBottomNavigation().setOnNavigationItemSelectedListener {
             selectFragment(it.itemId)
             true

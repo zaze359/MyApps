@@ -10,7 +10,7 @@ import com.zaze.apps.databinding.SlidingPanelLayoutBinding
  * @author : zaze
  * @version : 2021-07-20 - 10:20
  */
-abstract class AbsSlidingPanelActivity : AbsActivity() {
+abstract class AbsSlidingPanelFragment : AbsFragment() {
     private val panelBinding: SlidingPanelLayoutBinding by lazy {
         SlidingPanelLayoutBinding.inflate(layoutInflater)
     }
