@@ -12,13 +12,13 @@ import com.zaze.apps.databinding.ItemCardProgressSubBinding
  * @author : zaze
  * @version : 2021-10-08 - 18:10
  */
-class ProgressSubAdapter(data: Collection<Card.Progress.Sub>?, private val max: Int) :
-    BaseRecyclerAdapter<Card.Progress.Sub, ProgressSubAdapter.ProgressSubHolder>(data) {
+class ProgressSubAdapter :
+    BaseRecyclerAdapter<Card.Progress.Sub, ProgressSubAdapter.ProgressSubHolder>() {
 
     override fun onBindView(holder: ProgressSubHolder, value: Card.Progress.Sub, position: Int) {
         holder.binding.progressSubTagTv.text = value.tag
         holder.binding.progressPb.let {
-            it.max = max
+            it.max = value.max
             it.progress = value.progress
         }
     }

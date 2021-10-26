@@ -44,7 +44,8 @@ sealed class Card(val type: Int) {
     data class Progress(
         val title: String,
         val max: Int,
-        val progresses: List<Sub>,
+        val progress: Int,
+        val subProgresses: List<Sub>? = null,
         val trans: (Int) -> String,
         val doAction: (() -> Unit)? = null
     ) : Card(Type.PROGRESS) {
@@ -53,6 +54,7 @@ sealed class Card(val type: Int) {
             val tag: String,
             val icon: Bitmap? = null,
             val trans: (Int) -> String,
+            val max: Int,
             val progress: Int
         )
 

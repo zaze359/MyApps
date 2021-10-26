@@ -41,7 +41,7 @@
         </activity>
 
         <activity
-            android:name=".AppDetailActivity"
+            android:name=".AppDetailFragment"
             android:theme="@style/Theme.MyApps" />
 
         <meta-data

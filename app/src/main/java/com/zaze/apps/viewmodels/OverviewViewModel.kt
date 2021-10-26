@@ -2,7 +2,6 @@ package com.zaze.apps.viewmodels
 
 import android.content.Intent
 import android.provider.Settings
-import androidx.lifecycle.MutableLiveData
 import com.zaze.apps.App
 import com.zaze.apps.R
 import com.zaze.apps.base.AbsViewModel
@@ -13,10 +12,13 @@ import com.zaze.apps.utils.ApplicationManager
 import com.zaze.apps.utils.SingleLiveEvent
 import com.zaze.utils.DescriptionUtil
 import com.zaze.utils.StorageLoader
+import com.zaze.utils.TraceHelper
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * Description :
@@ -24,17 +26,22 @@ import kotlinx.coroutines.withContext
  * @version : 2021-08-02 - 15:36
  */
 class OverviewViewModel : AbsViewModel() {
-    val overviewListData = MutableLiveData<List<Card>>()
     val showAppsAction = SingleLiveEvent<Unit>()
 
     val requestAppUsagePermissionAction = SingleLiveEvent<Unit>()
     val settingsAction = SingleLiveEvent<Intent>()
-//    var installedApps = emptyList<AppShortcut>()
 
-    suspend fun loadOverview() {
+    fun loadOverview(): Flow<List<Card>> {
+        return flow {
+            this.emit(loadCards())
+        }.flowOn(Dispatchers.IO)
+    }
+
+    private fun loadCards(): List<Card> {
         val list = ArrayList<Card>()
+        TraceHelper.beginSection("loadOverview")
         val installedApps =
-            ApplicationManager.installedApps.values.toList().sortedByDescending {
+            ApplicationManager.getInstallApps().values.toList().sortedByDescending {
                 it.lastUpdateTime
             }
         // --------------------------------------------------
@@ -67,7 +74,7 @@ class OverviewViewModel : AbsViewModel() {
             )
         } else {
             // --------------------------------------------------
-            val apps = installedApps.subList(0, 10)
+            val apps = installedApps.subList(0, 5)
             list.add(
                 Card.Apps(
                     title = "最近更新TOP${apps.size}",
@@ -80,34 +87,38 @@ class OverviewViewModel : AbsViewModel() {
             val storageInfo = StorageLoader.loadStorageStats(App.getInstance())
             val usedSpace = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
             val appsSpace = 0
+            // --------------------------------------------------
             val transFun = { it: Int ->
                 DescriptionUtil.toByteUnit(it.toLong() * unit)
             }
+            val max = (storageInfo.totalBytes / unit).toInt()
             list.add(
                 Card.Progress(
                     title = "存储情况",
-                    max = (storageInfo.totalBytes / unit).toInt(),
+                    max = max,
+                    progress = usedSpace,
                     trans = transFun,
-                    progresses = listOf(
-                        Card.Progress.Sub(
-                            tag = "Apps",
-                            trans = transFun,
-                            progress = appsSpace
-                        ),
-                        Card.Progress.Sub(
-                            tag = "Others",
-                            trans = transFun,
-                            progress = usedSpace - appsSpace
-                        ),
-                    ),
+//                    subProgresses = listOf(
+//                        Card.Progress.Sub(
+//                            tag = "Apps",
+//                            trans = transFun,
+//                            max = max,
+//                            progress = appsSpace
+//                        ),
+//                        Card.Progress.Sub(
+//                            tag = "Others",
+//                            trans = transFun,
+//                            max = max,
+//                            progress = usedSpace - appsSpace
+//                        ),
+//                    ),
                     doAction = {
                         settingsAction.postValue(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
                     }
                 )
             )
         }
-        withContext(Dispatchers.Main) {
-            overviewListData.value = list
-        }
+        TraceHelper.endSection("loadOverview")
+        return list
     }
 }

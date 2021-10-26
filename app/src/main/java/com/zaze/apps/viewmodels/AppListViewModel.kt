@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.zaze.apps.base.AbsAndroidViewModel
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.ApplicationManager
-import com.zaze.apps.utils.TraceHelper
 import com.zaze.utils.AppUtil
 import com.zaze.utils.FileUtil
+import com.zaze.utils.TraceHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,14 +55,12 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
 //                FileUtil.deleteFile(extractFile)
 //                FileUtil.deleteFile(allFile)
             // --------------------------------------------------
-            AppUtil.getInstalledApplications(application)
-//                .asSequence()
-//                .filter {
-//                    it.isSystemApp()
-//                }
-                .forEach {
-                    packageSet[it.packageName] = ApplicationManager.getAppShortcut(it.packageName)
-                }
+            ApplicationManager.getInstallApps().filter {
+//                it.isSystemApp()
+                true
+            }.let {
+                packageSet.putAll(it)
+            }
             // --------------------------------------------------
             matchAppAndShow(appList = packageSet.values)
             dragLoading.postValue(false)
@@ -151,13 +149,15 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
     ) {
         this.matchHistory = matchStr
         val apps = withContext(Dispatchers.Default) {
-            appList.asSequence().filter {
+            appList.filter {
                 matchStr.isEmpty()
                         || it.packageName.contains(matchStr, true)
                         || it.appName?.contains(matchStr, true) ?: false
             }.filter {
                 !it.sourceDir.isNullOrEmpty()
-            }.toList()
+            }.sortedBy {
+                it.appName
+            }
         }
         appData.postValue(apps)
     }

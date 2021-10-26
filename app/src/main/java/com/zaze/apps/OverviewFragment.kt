@@ -15,6 +15,9 @@ import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.viewmodels.OverviewViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * Description :
@@ -32,10 +35,6 @@ class OverviewFragment : AbsFragment() {
             }
         }
 
-    override fun showLifeCycle(): Boolean {
-        return true
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,10 +46,6 @@ class OverviewFragment : AbsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        viewModel.overviewListData.observe(viewLifecycleOwner) {
-            binding.overviewRecyclerView.adapter = CardsAdapter(it)
-        }
         viewModel.showAppsAction.observe(viewLifecycleOwner) {}
         viewModel.requestAppUsagePermissionAction.observe(viewLifecycleOwner) {
             AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
@@ -58,8 +53,13 @@ class OverviewFragment : AbsFragment() {
         viewModel.settingsAction.observe(viewLifecycleOwner) {
             startActivity(it)
         }
+        binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launchWhenResumed {
-            viewModel.loadOverview()
+            viewModel.loadOverview().collect {
+                binding.overviewRecyclerView.adapter = CardsAdapter().apply {
+                    setDataList(it, false)
+                }
+            }
         }
     }
 }

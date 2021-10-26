@@ -9,8 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
  * @author : zaze
  * @version : 1.0
  */
-abstract class BaseRecyclerAdapter<V, H : RecyclerView.ViewHolder>(data: Collection<V>?) :
-    DataRecyclerAdapter<V, H>(data) {
+abstract class BaseRecyclerAdapter<V, H : RecyclerView.ViewHolder> : DataRecyclerAdapter<V, H>() {
 
     override fun onBindViewHolder(holder: H, position: Int) {
         getItem(position)?.let {

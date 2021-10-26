@@ -4,6 +4,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="overview">overview</string>
+    <string name="app_detail">应用详情</string>
+    <string name="app_dirs">应用目录</string>
     <string name="apps">apps</string>
     <string name="home">home</string>
 </resources>

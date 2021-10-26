@@ -19,7 +19,9 @@ class AppsCardHolder(private val binding: ItemCardAppsBinding) :
         binding.appsTitleTv.text = value.title
         binding.appsRecyclerView.let {
             it.layoutManager = LinearLayoutManager(itemView.context, RecyclerView.HORIZONTAL, false)
-            it.adapter = LatelyUpdateAdapter(value.apps)
+            it.adapter = LatelyUpdateAdapter().apply {
+                setDataList(value.apps, false)
+            }
         }
     }
 }

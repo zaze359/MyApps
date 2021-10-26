@@ -11,6 +11,7 @@ import android.os.Process;
 import android.text.TextUtils;
 
 import com.zaze.utils.DisplayUtil;
+import com.zaze.utils.TraceHelper;
 import com.zaze.utils.cache.MemoryCacheManager;
 import com.zaze.utils.log.ZLog;
 import com.zaze.utils.log.ZTag;
@@ -50,6 +51,7 @@ public abstract class BaseApplication extends Application {
         super.onCreate();
         instance = this;
         ZLog.setNeedStack(true);
+        ZLog.registerLogCaller(TraceHelper.class.getName());
         this.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {

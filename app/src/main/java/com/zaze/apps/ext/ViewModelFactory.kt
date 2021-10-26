@@ -2,21 +2,23 @@ package com.zaze.apps.ext
 
 import android.app.Application
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.*
 import com.zaze.apps.base.AbsActivity
 import com.zaze.apps.base.AbsAndroidViewModel
 import com.zaze.apps.base.BaseApplication
 import com.zaze.apps.base.AbsViewModel
+import kotlin.reflect.KClass
 
-open class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
+class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (AbsAndroidViewModel::class.java.isAssignableFrom(modelClass)) {
+        return if (AbsAndroidViewModel::class.java.isAssignableFrom(
+                modelClass
+            )
+        ) {
             try {
                 modelClass.getConstructor(Application::class.java)
                     .newInstance(BaseApplication.getInstance())
@@ -27,11 +29,20 @@ open class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
     }
 }
 
+fun obtainViewModelFactory(): ViewModelFactory {
+    return ViewModelFactory()
+}
+
+
 /**
  * 在fragment中构建仅和fragment 关联的viewModel
  */
+@Deprecated("use myViewModel ", ReplaceWith("Fragment.myViewModel()"))
 fun <T : ViewModel> Fragment.obtainFragViewModel(viewModelClass: Class<T>): T {
-    return ViewModelProviders.of(this, ViewModelFactory()).get(viewModelClass)
+    return ViewModelProviders.of(
+        this,
+        obtainViewModelFactory()
+    ).get(viewModelClass)
 }
 
 /**
@@ -39,11 +50,14 @@ fun <T : ViewModel> Fragment.obtainFragViewModel(viewModelClass: Class<T>): T {
  */
 @Deprecated("use obtainViewModelFactory ")
 fun <T : ViewModel> Fragment.obtainViewModel(viewModelClass: Class<T>): T {
-    return activity?.let {
-        ViewModelProviders.of(it, ViewModelFactory()).get(viewModelClass).also { vm ->
+    return requireActivity().let {
+        ViewModelProviders.of(
+            it,
+            obtainViewModelFactory()
+        ).get(viewModelClass).also { vm ->
             initAbsViewModel(it, vm)
         }
-    } ?: obtainFragViewModel(viewModelClass)
+    }
 }
 
 /**
@@ -55,11 +69,53 @@ fun <T : ViewModel> AppCompatActivity.obtainViewModel(
 ) =
     ViewModelProviders.of(
         this,
-        ViewModelFactory()
+        obtainViewModelFactory()
     ).get(viewModelClass)
         .also { vm ->
             initAbsViewModel(this, vm)
         }
+
+class MyViewModelLazy<VM : ViewModel>(
+    private val activity: () -> ComponentActivity?,
+    private val viewModelClass: KClass<VM>,
+    private val storeProducer: () -> ViewModelStore,
+    private val factoryProducer: () -> ViewModelProvider.Factory
+) : Lazy<VM> {
+    private var cached: VM? = null
+    private var observed = false
+
+    override val value: VM
+        get() {
+            val viewModel = cached
+            return if (viewModel == null) {
+                val factory = factoryProducer()
+                val store = storeProducer()
+                ViewModelProvider(store, factory).get(viewModelClass.java).also {
+                    cached = it
+                }
+            } else {
+                viewModel
+            }.apply {
+                observe(activity(), this)
+            }
+        }
+
+    private fun observe(owner: ComponentActivity?, viewModel: ViewModel) {
+        if (observed) {
+            return
+        }
+        if (owner == null) {
+            // Fragment not attached to an activity.
+            observed = false
+        } else {
+            observed = true
+            initAbsViewModel(owner, viewModel)
+        }
+    }
+
+    override fun isInitialized(): Boolean = cached != null
+}
+
 
 fun initAbsViewModel(owner: ComponentActivity?, viewModel: ViewModel) {
     if (owner is AbsActivity && viewModel is AbsViewModel) {

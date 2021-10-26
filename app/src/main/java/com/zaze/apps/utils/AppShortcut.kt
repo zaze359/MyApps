@@ -12,8 +12,9 @@ import android.os.storage.StorageManager
 import androidx.annotation.RequiresApi
 import com.google.gson.annotations.Expose
 import com.zaze.apps.App
+import com.zaze.apps.base.BaseApplication
 import com.zaze.utils.AppUtil
-import com.zaze.utils.SignaturesUtil.getSignatures
+import com.zaze.utils.SignaturesUtil
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import java.lang.Exception
@@ -31,16 +32,28 @@ data class AppShortcut(
     val packageName: String = "",
     val versionCode: Long = 0,
     val versionName: String? = null,
-    val sourceDir: String? = null,
     val uid: Int = 0,
     val flags: Int = 0,
-    val signingInfo: String? = null,
     val isInstalled: Boolean = false,
     val firstInstallTime: Long = 0,
     val lastUpdateTime: Long = 0,
 ) {
-    var isCopyEnable: Boolean = true
+    // --------------------------------------------------
+    val sourceDir: String?
+        get() {
+            return applicationInfo?.sourceDir
+        }
 
+    @Transient
+    @Expose(serialize = false, deserialize = false)
+    var appIcon: Bitmap? = null
+        get() {
+            if (field == null) {
+                // 不赋值，icon 单独保存
+                return ApplicationManager.getAppIconHasDefault(packageName)
+            }
+            return field
+        }
 
     @Transient
     @Expose(serialize = false, deserialize = false)
@@ -95,16 +108,10 @@ data class AppShortcut(
                     packageInfo.versionCode.toLong()
                 },
                 versionName = packageInfo.versionName,
-                signingInfo = getSignatures(object : ContextWrapper(context) {
-                    override fun getPackageName(): String {
-                        return packageInfo.packageName
-                    }
-                }, "MD5"),
                 appName = applicationInfo?.let {
                     context.packageManager.getApplicationLabel(it).toString()
                 },
                 isInstalled = applicationInfo != null,
-                sourceDir = applicationInfo?.sourceDir,
                 flags = applicationInfo?.flags ?: 0,
                 uid = applicationInfo?.uid ?: 0,
                 firstInstallTime = packageInfo.firstInstallTime,
@@ -112,7 +119,9 @@ data class AppShortcut(
             )
             appShortcut.packageInfo = packageInfo
             appShortcut.applicationInfo = applicationInfo
-            ZLog.i(ZTag.TAG, "appShortcut: $appShortcut")
+//            ZLog.i(ZTag.TAG, "appShortcut: $appShortcut")
+            ZLog.i(ZTag.TAG, "appShortcut: $packageInfo")
+            ZLog.i(ZTag.TAG, "appShortcut: $applicationInfo")
             return appShortcut
         }
     }
@@ -121,8 +130,13 @@ data class AppShortcut(
         return flags and ApplicationInfo.FLAG_SYSTEM != 0
     }
 
-    fun getAppIcon(): Bitmap? {
-        return ApplicationManager.getAppIconHasDefault(packageName)
+    fun getSignatures() {
+        SignaturesUtil.getSignatures(object :
+            ContextWrapper(BaseApplication.getInstance()) {
+            override fun getPackageName(): String {
+                return this@AppShortcut.packageName
+            }
+        }, "MD5")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

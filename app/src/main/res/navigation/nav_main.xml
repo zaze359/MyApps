@@ -2,13 +2,92 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/view_pager_fragment">
+    app:startDestination="@id/home_page_dest">
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/index_dest"-->
+    <!--        android:name="com.zaze.apps.IndexFragment">-->
+    <!--        <action-->
+    <!--            android:id="@+id/app_detail_action"-->
+    <!--            app:destination="@+id/app_detail_dest"-->
+    <!--            app:enterAnim="@anim/slide_in_right"-->
+    <!--            app:exitAnim="@anim/slide_out_left"-->
+    <!--            app:popEnterAnim="@anim/slide_in_left"-->
+    <!--            app:popExitAnim="@anim/slide_out_right" />-->
+
+    <!--    </fragment>-->
 
     <fragment
-        android:id="@+id/view_pager_fragment"
-        android:name="com.zaze.apps.HomeViewPagerFragment"
-        tools:layout="@layout/fragment_home_view_pager">
+        android:id="@+id/home_dest"
+        android:name="com.zaze.apps.HomeFragment"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/app_detail_action"
+            app:destination="@+id/app_detail_dest"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
 
     </fragment>
 
+    <fragment
+        android:id="@+id/home_page_dest"
+        android:name="com.zaze.apps.HomePagerFragment"
+        tools:layout="@layout/fragment_home_pager">
+
+        <action
+            android:id="@+id/app_detail_action"
+            app:destination="@+id/app_detail_dest"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/overview_dest"
+        android:name="com.zaze.apps.OverviewFragment"
+        android:label="@string/app_detail"
+        tools:layout="@layout/fragment_overview">
+        <action
+            android:id="@+id/app_detail_action"
+            app:destination="@+id/app_detail_dest"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/app_list_dest"
+        android:name="com.zaze.apps.AppListFragment"
+        android:label="@string/apps"
+        tools:layout="@layout/fragment_home_pager">
+
+        <action
+            android:id="@+id/app_detail_action"
+            app:destination="@+id/app_detail_dest"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/app_detail_dest"
+        android:name="com.zaze.apps.AppDetailFragment"
+        android:label="@string/app_detail"
+        tools:layout="@layout/fragment_app_detail">
+
+        <argument
+            android:name="packageName"
+            app:argType="string" />
+
+    </fragment>
+    d
 </navigation>

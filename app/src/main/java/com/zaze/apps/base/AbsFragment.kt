@@ -20,7 +20,7 @@ import com.zaze.utils.log.ZTag
 abstract class AbsFragment : Fragment() {
 
     companion object {
-        var globalLog = false
+        var globalLog = true
         private const val TAG = "${ZTag.TAG}LifeCycle"
     }
 

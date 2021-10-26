@@ -7,13 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.adapters.AppListAdapter
 import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.base.AbsSlidingPanelFragment
 import com.zaze.apps.databinding.FragmentAppListBinding
 import com.zaze.apps.ext.myViewModels
+import com.zaze.apps.ext.onClick
 import com.zaze.apps.viewmodels.AppListViewModel
-import com.zaze.utils.ZOnClickHelper
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -49,20 +51,15 @@ class AppListFragment : AbsFragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.appData.observe(viewLifecycleOwner, Observer { appList ->
             binding.appCountTv.text = "查询到 ${appList.size}个应用"
-            adapter?.setDataList(appList) ?: let {
-                adapter = AppListAdapter(appList)
-                binding.appListRecycleView.layoutManager = LinearLayoutManager(requireContext())
-                binding.appListRecycleView.adapter = adapter
+            binding.appListRecycleView.adapter = AppListAdapter().apply {
+                setDataList(appList, false)
             }
         })
 
-        viewModel.dragLoading.observe(viewLifecycleOwner) {
-            binding.appListRefreshLayout.isRefreshing = it
-        }
-
-        ZOnClickHelper.setOnClickListener(binding.appExtractBtn) {
+        binding.appExtractBtn.onClick {
             viewModel.extractApp()
         }
+
         binding.appResolvingApkCb.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 viewModel.loadSdcardApk()
@@ -81,9 +78,10 @@ class AppListFragment : AbsFragment() {
                 viewModel.filterApp(s.toString())
             }
         })
-        binding.appListRefreshLayout.setOnRefreshListener {
+        binding.appListRecycleView.layoutManager = LinearLayoutManager(requireContext())
+
+        lifecycleScope.launchWhenResumed {
             viewModel.loadAppList()
         }
-        viewModel.loadAppList()
     }
 }

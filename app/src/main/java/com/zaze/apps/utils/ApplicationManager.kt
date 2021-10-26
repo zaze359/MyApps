@@ -1,11 +1,8 @@
 package com.zaze.apps.utils
 
-import com.zaze.utils.AppUtil.getPackageArchiveInfo
 import com.zaze.apps.utils.AppShortcut.Companion.transform
-import com.zaze.utils.AppUtil.getPackageInfo
 import com.zaze.apps.utils.AppShortcut.Companion.empty
 import com.zaze.utils.BmpUtil.drawable2Bitmap
-import com.zaze.utils.AppUtil.getInstalledPackages
 import android.graphics.Bitmap
 import com.zaze.apps.base.BaseApplication
 import android.text.TextUtils
@@ -17,6 +14,7 @@ import android.graphics.drawable.Drawable
 import android.util.LruCache
 import com.zaze.apps.R
 import androidx.core.content.res.ResourcesCompat
+import com.zaze.utils.AppUtil
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import java.lang.Exception
@@ -89,7 +87,7 @@ object ApplicationManager {
      * @return AppShortcut
      */
     fun getAppShortcut(packageName: String): AppShortcut {
-        var appShortcut = getShortcutFromCache(packageName)!!
+        var appShortcut = getShortcutFromCache(packageName)
         if (appShortcut == null) {
             appShortcut = initAppShortcut(packageName)
         }
@@ -105,26 +103,14 @@ object ApplicationManager {
      * @return AppShortcut
      */
     fun getAppShortcutFormApk(apkFilePath: String): AppShortcut? {
-        val packageInfo = getPackageArchiveInfo(BaseApplication.getInstance(), apkFilePath)
+        val packageInfo = AppUtil.getPackageArchiveInfo(BaseApplication.getInstance(), apkFilePath)
         return if (packageInfo != null) {
             packageInfo.applicationInfo.sourceDir = apkFilePath
             packageInfo.applicationInfo.publicSourceDir = apkFilePath
             val appShortcut = transform(BaseApplication.getInstance(), packageInfo)
-            appShortcut.isCopyEnable = false
             appShortcut
         } else {
             null
-        }
-    }
-
-    /**
-     * 尝试将数据加载到缓存
-     *
-     * @param packageName packageName
-     */
-    fun tryLoadAppShortcut(packageName: String) {
-        if (!TextUtils.isEmpty(packageName) && getShortcutFromCache(packageName) == null) {
-            initAppShortcut(packageName)
         }
     }
 
@@ -136,7 +122,7 @@ object ApplicationManager {
      */
     private fun initAppShortcut(
         packageName: String,
-        packageInfo: PackageInfo? = getPackageInfo(
+        packageInfo: PackageInfo? = AppUtil.getPackageInfo(
             BaseApplication.getInstance(),
             packageName,
             0
@@ -200,10 +186,7 @@ object ApplicationManager {
      */
     val appDefaultLogo: Bitmap?
         get() {
-            var bitmap: Bitmap? = null
-            if (defaultLogoBmpRef != null) {
-                bitmap = defaultLogoBmpRef!!.get()
-            }
+            var bitmap = defaultLogoBmpRef?.get()
             if (bitmap == null) {
                 bitmap = makeDefaultIcon(
                     getFullResIcon(
@@ -251,21 +234,26 @@ object ApplicationManager {
         return name
     }
 
-    // --------------------------------------------------
-    val installedApps: Map<String, AppShortcut>
-        get() {
-            synchronized(SHORTCUT_CACHE) {
-                if (SHORTCUT_CACHE.isEmpty() || !allAppInitialized) {
-                    val list = getInstalledPackages(BaseApplication.getInstance(), 0)
-                    for (packageInfo in list) {
-                        val shortcut = initAppShortcut(packageInfo.packageName, packageInfo)
-                        SHORTCUT_CACHE[shortcut.packageName] = shortcut
-                    }
-                    allAppInitialized = true
+    fun getInstallApps(): Map<String, AppShortcut> {
+        initAllShortcuts()
+        return SHORTCUT_CACHE.filter {
+            it.value.isInstalled
+        }
+    }
+
+    fun getAllApps(): Map<String, AppShortcut> {
+        initAllShortcuts()
+        return SHORTCUT_CACHE.toMap()
+    }
+
+    fun initAllShortcuts() {
+        synchronized(SHORTCUT_CACHE) {
+            if (SHORTCUT_CACHE.isEmpty() || !allAppInitialized) {
+                AppUtil.getInstalledPackages(BaseApplication.getInstance(), 0).forEach {
+                    initAppShortcut(it.packageName, it)
                 }
-                return SHORTCUT_CACHE
+                allAppInitialized = true
             }
         }
-
-    private class Key
+    }
 }

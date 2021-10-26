@@ -17,8 +17,7 @@ import com.zaze.apps.items.ProgressCardHolder
  * @author : zaze
  * @version : 2021-08-02 - 10:21
  */
-class CardsAdapter(data: List<Card>?) :
-    DataRecyclerAdapter<Card, CardHolder<Card>>(data) {
+class CardsAdapter : DataRecyclerAdapter<Card, CardHolder<Card>>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder<Card> {
         val inflater = LayoutInflater.from(parent.context)

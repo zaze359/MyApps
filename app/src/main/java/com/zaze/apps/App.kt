@@ -1,8 +1,8 @@
 package com.zaze.apps
 
 import com.zaze.apps.base.BaseApplication
+import com.zaze.utils.TraceHelper
 import dagger.hilt.android.HiltAndroidApp
-import java.lang.IllegalStateException
 
 /**
  * Description :
@@ -16,4 +16,8 @@ class App : BaseApplication() {
         fun getInstance() = BaseApplication.getInstance() as App
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        TraceHelper.enable(BuildConfig.DEBUG)
+    }
 }

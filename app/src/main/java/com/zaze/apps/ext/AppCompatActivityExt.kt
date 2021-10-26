@@ -1,13 +1,13 @@
 package com.zaze.apps.ext
 
 import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
 fun AppCompatActivity.replaceFragment(frameId: Int, fragment: Fragment, tag: String? = null) {
     supportFragmentManager.transact {
@@ -52,18 +52,18 @@ fun FragmentManager.transactAllowingStateLoss(action: FragmentTransaction.() -> 
 }
 
 // --------------------------------------------------
-fun ComponentActivity.obtainViewModelFactory(): ViewModelFactory {
-    return object : ViewModelFactory() {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return super.create(modelClass).also { vm ->
-                initAbsViewModel(this@obtainViewModelFactory, vm)
-            }
-        }
-    }
-}
-
 @MainThread
-inline fun <reified VM : ViewModel> ComponentActivity.myViewModels(): Lazy<VM> = viewModels {
+inline fun <reified VM : ViewModel> ComponentActivity.myViewModels(): Lazy<VM> = customViewModels {
     obtainViewModelFactory()
 }
+
+inline fun <reified VM : ViewModel> ComponentActivity.customViewModels(
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+): Lazy<VM> {
+    val factoryPromise = factoryProducer ?: {
+        defaultViewModelProviderFactory
+    }
+    return MyViewModelLazy({ this }, VM::class, { viewModelStore }, factoryPromise)
+}
+
 // --------------------------------------------------

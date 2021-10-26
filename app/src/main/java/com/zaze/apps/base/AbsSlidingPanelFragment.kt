@@ -15,13 +15,13 @@ abstract class AbsSlidingPanelFragment : AbsFragment() {
         SlidingPanelLayoutBinding.inflate(layoutInflater)
     }
 
-    protected fun wrapSlidingMusicPanel(view: View): View {
+    protected fun wrapSlidingPanel(view: View): View {
         panelBinding.panelContentFrame.removeAllViews()
         panelBinding.panelContentFrame.addView(view)
         return panelBinding.root
     }
 
-    protected fun wrapSlidingMusicPanel(@LayoutRes layoutResId: Int): View {
+    protected fun wrapSlidingPanel(@LayoutRes layoutResId: Int): View {
         layoutInflater.inflate(layoutResId, panelBinding.panelContentFrame)
 //        panelBinding.panelBottomNav
         return panelBinding.root
