@@ -19,7 +19,7 @@ fun View.invisible() {
     this.visibility = View.INVISIBLE
 }
 
-fun View.onClick(block: (View?) -> Unit) {
+fun View.onClick(block: (View) -> Unit) {
     ZOnClickHelper.setOnClickListener(this) {
         block(it)
     }

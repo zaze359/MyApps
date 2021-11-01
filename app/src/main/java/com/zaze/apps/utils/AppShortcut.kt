@@ -120,8 +120,6 @@ data class AppShortcut(
             appShortcut.packageInfo = packageInfo
             appShortcut.applicationInfo = applicationInfo
 //            ZLog.i(ZTag.TAG, "appShortcut: $appShortcut")
-            ZLog.i(ZTag.TAG, "appShortcut: $packageInfo")
-            ZLog.i(ZTag.TAG, "appShortcut: $applicationInfo")
             return appShortcut
         }
     }

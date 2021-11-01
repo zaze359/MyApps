@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.HomeFragmentDirections
 import com.zaze.apps.OverviewFragmentDirections
 import com.zaze.apps.base.adapter.BaseRecyclerAdapter
 import com.zaze.apps.databinding.ItemLatelyUpdateAppBinding

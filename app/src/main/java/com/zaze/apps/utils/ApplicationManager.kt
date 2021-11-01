@@ -1,5 +1,7 @@
 package com.zaze.apps.utils
 
+import android.content.Context
+import android.content.Intent
 import com.zaze.apps.utils.AppShortcut.Companion.transform
 import com.zaze.apps.utils.AppShortcut.Companion.empty
 import com.zaze.utils.BmpUtil.drawable2Bitmap
@@ -11,12 +13,17 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
 import android.util.LruCache
+import androidx.core.content.FileProvider
 import com.zaze.apps.R
 import androidx.core.content.res.ResourcesCompat
 import com.zaze.utils.AppUtil
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
+import java.io.File
 import java.lang.Exception
 import java.lang.ref.SoftReference
 import java.util.HashMap
@@ -161,9 +168,9 @@ object ApplicationManager {
             }
         }
         if (appIcon == null) {
-            bitmap = appDefaultLogo
+            bitmap = getAppDefaultLogo()
         } else {
-            bitmap = makeDefaultIcon(appIcon)
+            bitmap = formatIcon(appIcon)
             BITMAP_CACHE.put(packageName, bitmap)
         }
         return bitmap
@@ -184,20 +191,19 @@ object ApplicationManager {
      *
      * @return Bitmap
      */
-    val appDefaultLogo: Bitmap?
-        get() {
-            var bitmap = defaultLogoBmpRef?.get()
-            if (bitmap == null) {
-                bitmap = makeDefaultIcon(
-                    getFullResIcon(
-                        BaseApplication.getInstance().resources,
-                        R.mipmap.ic_launcher
-                    )
+    fun getAppDefaultLogo(): Bitmap? {
+        var bitmap = defaultLogoBmpRef?.get()
+        if (bitmap == null) {
+            bitmap = formatIcon(
+                getFullResIcon(
+                    BaseApplication.getInstance().resources,
+                    R.mipmap.ic_launcher
                 )
-                defaultLogoBmpRef = SoftReference(bitmap)
-            }
-            return bitmap
+            )
+            defaultLogoBmpRef = SoftReference(bitmap)
         }
+        return bitmap
+    }
 
     private fun getFullResIcon(resources: Resources, iconId: Int): Drawable? {
         return try {
@@ -212,7 +218,7 @@ object ApplicationManager {
         }
     }
 
-    private fun makeDefaultIcon(drawable: Drawable?): Bitmap? {
+    private fun formatIcon(drawable: Drawable?): Bitmap? {
         return drawable2Bitmap(drawable, invariantDeviceProfile.iconBitmapSize)
     }
     // --------------------------------------------------
@@ -255,5 +261,38 @@ object ApplicationManager {
                 allAppInitialized = true
             }
         }
+    }
+
+    // --------------------------------------------------
+    /**
+     * 安装应用
+     */
+    fun installApp(context: Context, file: File) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addCategory(Intent.CATEGORY_DEFAULT)
+        val uri: Uri
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(context, "${context.packageName}.fileProvider", file)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        } else {
+            uri = Uri.fromFile(file)
+        }
+        intent.setDataAndType(uri, "application/vnd.android.package-archive")
+        context.startActivity(intent)
+    }
+
+    /**
+     * 卸载应用
+     */
+    fun uninstallApp(context: Context, packageName: String) {
+        AppUtil.unInstall(context, packageName)
+    }
+
+    /**
+     * 打开应用
+     */
+    fun openApp(context: Context, packageName: String, bundle: Bundle? = null) {
+        AppUtil.startApplication(context, packageName, bundle, true)
     }
 }

@@ -19,12 +19,12 @@ class HomePagerViewModel(application: Application) : AbsAndroidViewModel(applica
     val homePages = MutableStateFlow(
         listOf(
             HomePage(
-                getString(R.string.overview),
-                R.drawable.ic_baseline_assessment_24,
+                getString(R.string.apps),
+                R.drawable.ic_baseline_apps_24,
                 AppListFragment()
             ),
             HomePage(
-                getString(R.string.apps),
+                getString(R.string.overview),
                 R.drawable.ic_baseline_assessment_24,
                 OverviewFragment()
             ),

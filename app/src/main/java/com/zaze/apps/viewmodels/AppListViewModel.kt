@@ -2,17 +2,17 @@ package com.zaze.apps.viewmodels
 
 import android.app.Application
 import android.os.Build
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.zaze.apps.base.AbsAndroidViewModel
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.ApplicationManager
-import com.zaze.utils.AppUtil
 import com.zaze.utils.FileUtil
 import com.zaze.utils.TraceHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * Description :
@@ -22,8 +22,11 @@ import kotlinx.coroutines.withContext
 //@HiltViewModel
 class AppListViewModel constructor(application: Application) : AbsAndroidViewModel(application) {
     private var matchHistory = ""
-    val apkDir = "${application.getExternalFilesDir(null)}/zaze/apk"
-    val baseDir = "${application.getExternalFilesDir(null)}/zaze/${Build.MODEL}"
+    val appData = MutableStateFlow<List<AppShortcut>>(emptyList())
+
+    // --------------------------------------------------
+    val apkDir = "${application.getExternalFilesDir(null)}/apk"
+    val baseDir = "${application.getExternalFilesDir(null)}/${Build.MODEL}"
 
     //
     val existsFile = "$baseDir/exists.xml"
@@ -35,80 +38,60 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
     val extractFile = "$baseDir/extract.xml"
     val jsonExtractFile = "$baseDir/jsonExtract.xml"
 
-    val packageSet = HashMap<String, AppShortcut>()
-    val appData = MutableLiveData<List<AppShortcut>>()
-
     // --------------------------------------------------
+    fun loadAllApps() {
+        loadApps(matchHistory)
+    }
 
-    fun loadAppList() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (isLoading()) {
-                return@launch
-            }
-            TraceHelper.beginSection("loadAppList")
-            dragLoading.postValue(true)
-            // --------------------------------------------------
-            packageSet.clear()
-            // --------------------------------------------------
-            FileUtil.deleteFile(baseDir)
-//                FileUtil.deleteFile(unExistsFile)
-//                FileUtil.deleteFile(extractFile)
-//                FileUtil.deleteFile(allFile)
-            // --------------------------------------------------
-            ApplicationManager.getInstallApps().filter {
-//                it.isSystemApp()
-                true
-            }.let {
-                packageSet.putAll(it)
-            }
-            // --------------------------------------------------
-            matchAppAndShow(appList = packageSet.values)
-            dragLoading.postValue(false)
-            TraceHelper.endSection("loadAppList")
+    fun searchApps(filter: String) {
+        loadApps(filter)
+    }
+
+    private fun loadApps(filter: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            TraceHelper.beginSection("loadApps")
+            matchHistory = filter
+            val list = filterApp(ApplicationManager.getInstallApps().values, filter)
+            TraceHelper.endSection("loadApps")
+            appData.value = list
         }
     }
 
     // --------------------------------------------------
-    fun extractApp() {
-        if (!isLoading()) {
-            dataLoading.postValue(true)
-//            showProgress("正在提前数据....")
-//            Observable.fromCallable {
-//                val dataList = appData.get()
-//                if (dataList != null) {
-//                    FileUtil.deleteFile(extractPkgsFile)
-//                    FileUtil.deleteFile(extractFile)
-//                    FileUtil.deleteFile(jsonExtractFile)
-//                    val pkgBuilder = StringBuilder()
-//                    val xmlBuilder = StringBuilder()
-//                    val jsonArray = JSONArray()
-//                    for (entity in dataList) {
-//                        if (pkgBuilder.isNotEmpty()) {
-//                            pkgBuilder.append(",")
-//                        }
-//                        pkgBuilder.append("${entity.packageName}")
-//                        // --------------------------------------------------
-//                        if (xmlBuilder.isNotEmpty()) {
-//                            xmlBuilder.append("\n")
-//                        }
-//                        xmlBuilder.append("<item>${entity.packageName}</item><!--${entity.name}-->")
-//                        //
-//                        val jsonObj = JSONObject()
-//                        jsonObj.put("name", entity.name)
-//                        jsonObj.put("packageName", entity.packageName)
-//                        jsonArray.put(jsonObj)
-//                    }
-//                    FileUtil.writeToFile(extractPkgsFile, pkgBuilder.toString())
-//                    FileUtil.writeToFile(extractFile, xmlBuilder.toString())
-//                    FileUtil.writeToFile(jsonExtractFile, jsonArray.toString())
-//                }
-//            }.subscribeOn(ThreadPlugins.ioScheduler())
-//                .doFinally {
-//                    dataLoading.set(false)
-//                    hideProgress()
-//                }
-//                .subscribe(MyObserver(compositeDisposable))
-        }
+    fun extractApp(): Flow<String> {
+        TraceHelper.beginSection("extractApp")
+        return flowOf(appData.value)
+            .filter {
+                it.isNotEmpty()
+            }.map { dataList ->
+                FileUtil.deleteFile(extractPkgsFile)
+                FileUtil.deleteFile(extractFile)
+                FileUtil.deleteFile(jsonExtractFile)
+                val pkgBuilder = StringBuilder()
+                val xmlBuilder = StringBuilder()
+                val jsonArray = JSONArray()
+                for (entity in dataList) {
+                    if (pkgBuilder.isNotEmpty()) {
+                        pkgBuilder.append(",")
+                    }
+                    pkgBuilder.append("${entity.packageName}")
+                    // --------------------------------------------------
+                    if (xmlBuilder.isNotEmpty()) {
+                        xmlBuilder.append("\n")
+                    }
+                    xmlBuilder.append("<item>${entity.packageName}</item><!--${entity.appName}-->")
+                    //
+                    val jsonObj = JSONObject()
+                    jsonObj.put("name", entity.appName)
+                    jsonObj.put("packageName", entity.packageName)
+                    jsonArray.put(jsonObj)
+                }
+                FileUtil.writeToFile(extractPkgsFile, pkgBuilder.toString())
+                FileUtil.writeToFile(extractFile, xmlBuilder.toString())
+                FileUtil.writeToFile(jsonExtractFile, jsonArray.toString())
+                TraceHelper.endSection("extractApp")
+                baseDir
+            }.flowOn(Dispatchers.IO)
     }
 
     // ------------------------------------------------------
@@ -137,29 +120,16 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
 //        }
     }
 
-    fun filterApp(matchStr: String) {
-        viewModelScope.launch {
-            matchAppAndShow(matchStr, packageSet.values)
+    private fun filterApp(appList: Collection<AppShortcut>, matchStr: String): List<AppShortcut> {
+        return appList.filter {
+            matchStr.isEmpty()
+                    || it.packageName.contains(matchStr, true)
+                    || it.appName?.contains(matchStr, true) ?: false
+        }.filter {
+            !it.sourceDir.isNullOrEmpty()
+        }.sortedBy {
+            it.appName
         }
-    }
-
-    private suspend fun matchAppAndShow(
-        matchStr: String = matchHistory,
-        appList: Collection<AppShortcut>
-    ) {
-        this.matchHistory = matchStr
-        val apps = withContext(Dispatchers.Default) {
-            appList.filter {
-                matchStr.isEmpty()
-                        || it.packageName.contains(matchStr, true)
-                        || it.appName?.contains(matchStr, true) ?: false
-            }.filter {
-                !it.sourceDir.isNullOrEmpty()
-            }.sortedBy {
-                it.appName
-            }
-        }
-        appData.postValue(apps)
     }
 
     // --------------------------------------------------

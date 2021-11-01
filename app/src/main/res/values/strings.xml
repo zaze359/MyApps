@@ -8,4 +8,7 @@
     <string name="app_dirs">应用目录</string>
     <string name="apps">apps</string>
     <string name="home">home</string>
+
+    <string name="cancel">取消</string>
+    <string name="sure">确定</string>
 </resources>

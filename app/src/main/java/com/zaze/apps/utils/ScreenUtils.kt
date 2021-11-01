@@ -13,11 +13,11 @@ import android.view.WindowManager
  */
 object ScreenUtils {
     // --------------------------------------------------
-    fun addLayoutFullScreen(window: Window, isAllFull: Boolean = false) {
-        window.decorView.systemUiVisibility =
-            window.decorView.systemUiVisibility or getLayoutFullScreenFlag(
-                isAllFull
-            )
+    fun addLayoutFullScreen(window: Window, isAllFull: Boolean = false): Int {
+        val systemUiVisibility =
+            window.decorView.systemUiVisibility or getLayoutFullScreenFlag(isAllFull)
+        window.decorView.systemUiVisibility = systemUiVisibility
+        return systemUiVisibility
     }
 
     fun getLayoutFullScreenFlag(isAllFull: Boolean = false): Int {

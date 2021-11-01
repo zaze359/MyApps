@@ -79,7 +79,8 @@
                         style="@style/TextSize.H3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_detail" />
+                        android:text="@string/app_detail"
+                        android:textColor="@color/black" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/app_detail_recycler_view"
@@ -110,7 +111,8 @@
                         style="@style/TextSize.H3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_dirs" />
+                        android:text="@string/app_dirs"
+                        android:textColor="@color/black" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/app_dir_recycler_view"

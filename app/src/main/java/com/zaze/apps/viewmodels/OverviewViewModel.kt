@@ -53,7 +53,7 @@ class OverviewViewModel : AbsViewModel() {
         list.add(
             Card.Overview(
                 title = "应用统计: ${allAppSize}个",
-                content = "${allAppSize - systemAppSize}个普通应用  ${systemAppSize}个系统应用",
+                content = "${allAppSize - systemAppSize}个用户应用  ${systemAppSize}个系统应用",
                 iconRes = R.drawable.ic_baseline_assessment_24,
                 doAction = {
                     showAppsAction.action()

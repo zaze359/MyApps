@@ -6,13 +6,12 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp">
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/app_icon_iv"
             android:layout_width="@dimen/app_icon_size"
             android:layout_height="@dimen/app_icon_size"
-            android:layout_marginStart="16dp"
             android:contentDescription="@null"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
