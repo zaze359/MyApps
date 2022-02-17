@@ -37,7 +37,7 @@ import java.util.HashMap
  * @version : 2017-12-22 - 17:22
  */
 object ApplicationManager {
-    private val invariantDeviceProfile = InvariantDeviceProfile()
+    val invariantDeviceProfile = InvariantDeviceProfile()
 
     /**
      * 默认logo缓存
@@ -80,7 +80,6 @@ object ApplicationManager {
     }
 
     private fun clearAppCache(packageName: String) {
-        val appShortcut = getShortcutFromCache(packageName)
         SHORTCUT_CACHE.remove(packageName)
         BITMAP_CACHE.remove(packageName)
     }

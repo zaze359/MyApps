@@ -4,9 +4,10 @@
         android:id="@+id/overview_dest"
         android:icon="@drawable/ic_baseline_assessment_24"
         android:title="@string/overview" />
+
     <item
         android:id="@+id/app_list_dest"
-        android:icon="@drawable/ic_baseline_assessment_24"
+        android:icon="@drawable/ic_baseline_apps_24"
         android:title="@string/apps" />
 
     <item

@@ -47,9 +47,9 @@ class AppListFragment : AbsFragment() {
         binding.appExtractBtn.onClick { v ->
             lifecycleScope.launch {
                 v.isEnabled = false
-                viewModel.extractApp().collect {
+                viewModel.extractApp().collect { filePath ->
                     v.isEnabled = true
-                    showToast("已导出到: $it")
+                    showToast("已导出到: $filePath")
                 }
             }
         }

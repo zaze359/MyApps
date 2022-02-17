@@ -1,9 +1,11 @@
 package com.zaze.apps
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,7 +14,10 @@ import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppDetailBinding
 import com.zaze.apps.ext.myViewModels
 import com.zaze.apps.viewmodels.AppDetailViewModel
+import com.zaze.utils.log.ZLog
+import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * Description :
@@ -22,6 +27,13 @@ import kotlinx.coroutines.flow.collect
 class AppDetailFragment : AbsFragment() {
     private lateinit var dataBinding: FragmentAppDetailBinding
     private val viewModel: AppDetailViewModel by myViewModels()
+    private val bindAppwidgetRequest =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            ZLog.i(ZTag.TAG, "result: ${it.resultCode}, ${it.data}")
+            if (it.resultCode == Activity.RESULT_OK) {
+                viewModel.bindNext()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,20 +51,44 @@ class AppDetailFragment : AbsFragment() {
         dataBinding.appDetailRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         dataBinding.appDirRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val safeArgs: AppDetailFragmentArgs by navArgs()
-        lifecycleScope.launchWhenResumed {
-            viewModel.loadAppDetail(safeArgs.packageName).collect { appDetail ->
-                dataBinding.appNameTv.text = appDetail.appName
-                dataBinding.appVersionNameTv.text = appDetail.appVersion
-                dataBinding.appIconIv.setImageBitmap(appDetail.appIcon)
-                // --------------------------------------------------
-                dataBinding.appDetailRecyclerView.adapter = AppDetailAdapter().apply {
-                    setDataList(appDetail.appDetailItems, false)
-                }
-                // --------------------------------------------------
-                dataBinding.appDirRecyclerView.adapter = AppDetailAdapter().apply {
-                    setDataList(appDetail.appDirs, false)
+        lifecycleScope.launch {
+            viewModel.appShortcut.collect { app ->
+                app?.let {
+                    dataBinding.appNameTv.text = app.appName
+                    dataBinding.appVersionNameTv.text = app.versionName
+                    dataBinding.appIconIv.setImageBitmap(app.appIcon)
                 }
             }
         }
+        lifecycleScope.launch {
+            viewModel.appDetailItems.collect { items ->
+                dataBinding.appDetailRecyclerView.adapter = AppDetailAdapter().apply {
+                    setDataList(items, false)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.appDirs.collect { dirs ->
+                dataBinding.appDirRecyclerView.adapter = AppDetailAdapter().apply {
+                    setDataList(dirs, false)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.appWidgets.collect { appWidgets ->
+                dataBinding.appWidgetsLayout.removeAllViews()
+                appWidgets.forEach {
+                    it.isFocusable = true
+                    dataBinding.appWidgetsLayout.addView(it)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            for (bind in viewModel.bindWidgetAction) {
+                bind.startBindFlow(bindAppwidgetRequest)
+            }
+        }
+        viewModel.loadAppDetail(safeArgs.packageName)
+        viewModel.preloadAppWidgets(safeArgs.packageName)
     }
 }

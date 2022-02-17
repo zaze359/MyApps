@@ -33,8 +33,8 @@ class LatelyUpdateAdapter :
         holder.binding.latelyUpdateAppUpdateTimeTv.text =
             DateUtil.timeMillisToString(value.lastUpdateTime, "yyyy.MM.dd")
         holder.binding.root.onClick {
-            it?.findNavController()
-                ?.navigate(OverviewFragmentDirections.appDetailAction(value.packageName))
+            it.findNavController()
+                .navigate(OverviewFragmentDirections.appDetailAction(value.packageName))
         }
     }
 

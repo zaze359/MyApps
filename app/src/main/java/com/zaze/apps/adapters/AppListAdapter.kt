@@ -1,17 +1,12 @@
 package com.zaze.apps.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.*
 import com.zaze.apps.base.adapter.BaseRecyclerAdapter
 import com.zaze.apps.databinding.ItemAppListBinding
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.widgets.AppOperationWindow
-import com.zaze.utils.*
-import java.io.File
 
 /**
  * Description :
