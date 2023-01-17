@@ -33,48 +33,6 @@ fun obtainViewModelFactory(): ViewModelFactory {
     return ViewModelFactory()
 }
 
-
-/**
- * 在fragment中构建仅和fragment 关联的viewModel
- */
-@Deprecated("use myViewModel ", ReplaceWith("Fragment.myViewModel()"))
-fun <T : ViewModel> Fragment.obtainFragViewModel(viewModelClass: Class<T>): T {
-    return ViewModelProviders.of(
-        this,
-        obtainViewModelFactory()
-    ).get(viewModelClass)
-}
-
-/**
- * 在fragment中构建和activity 关联的viewModel
- */
-@Deprecated("use obtainViewModelFactory ")
-fun <T : ViewModel> Fragment.obtainViewModel(viewModelClass: Class<T>): T {
-    return requireActivity().let {
-        ViewModelProviders.of(
-            it,
-            obtainViewModelFactory()
-        ).get(viewModelClass).also { vm ->
-            initAbsViewModel(it, vm)
-        }
-    }
-}
-
-/**
- * 在activity中构建和activity 关联的viewModel
- */
-@Deprecated("use obtainViewModelFactory ")
-fun <T : ViewModel> AppCompatActivity.obtainViewModel(
-    viewModelClass: Class<T>
-) =
-    ViewModelProviders.of(
-        this,
-        obtainViewModelFactory()
-    ).get(viewModelClass)
-        .also { vm ->
-            initAbsViewModel(this, vm)
-        }
-
 class MyViewModelLazy<VM : ViewModel>(
     private val activity: () -> ComponentActivity?,
     private val viewModelClass: KClass<VM>,
@@ -127,3 +85,46 @@ fun initAbsViewModel(owner: ComponentActivity?, viewModel: ViewModel) {
         })
     }
 }
+
+
+
+/**
+ * 在fragment中构建仅和fragment 关联的viewModel
+ */
+@Deprecated("use myViewModel ", ReplaceWith("Fragment.myViewModel()"))
+fun <T : ViewModel> Fragment.obtainFragViewModel(viewModelClass: Class<T>): T {
+    return ViewModelProviders.of(
+        this,
+        obtainViewModelFactory()
+    ).get(viewModelClass)
+}
+
+/**
+ * 在fragment中构建和activity 关联的viewModel
+ */
+@Deprecated("use obtainViewModelFactory ")
+fun <T : ViewModel> Fragment.obtainViewModel(viewModelClass: Class<T>): T {
+    return requireActivity().let {
+        ViewModelProviders.of(
+            it,
+            obtainViewModelFactory()
+        ).get(viewModelClass).also { vm ->
+            initAbsViewModel(it, vm)
+        }
+    }
+}
+
+/**
+ * 在activity中构建和activity 关联的viewModel
+ */
+@Deprecated("use obtainViewModelFactory ")
+fun <T : ViewModel> AppCompatActivity.obtainViewModel(
+    viewModelClass: Class<T>
+) =
+    ViewModelProviders.of(
+        this,
+        obtainViewModelFactory()
+    ).get(viewModelClass)
+        .also { vm ->
+            initAbsViewModel(this, vm)
+        }

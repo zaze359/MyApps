@@ -89,6 +89,6 @@ class AppDetailFragment : AbsFragment() {
             }
         }
         viewModel.loadAppDetail(safeArgs.packageName)
-        viewModel.preloadAppWidgets(safeArgs.packageName)
+//        viewModel.preloadAppWidgets(safeArgs.packageName)
     }
 }

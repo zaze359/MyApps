@@ -3,8 +3,6 @@ package com.zaze.apps.ext
 import androidx.activity.ComponentActivity
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -15,12 +13,13 @@ import kotlin.reflect.KClass
  * @author : zaze
  * @version : 2021-04-29 - 10:27
  */
+
 @MainThread
 inline fun <reified VM : ViewModel> Fragment.myViewModels() = createMyViewModelLazy(
-    { activity },
-    VM::class,
-    { this.viewModelStore },
-    { obtainViewModelFactory() }
+    activity = { activity },
+    viewModelClass = VM::class,
+    storeProducer = { this.viewModelStore },
+    factoryProducer = { obtainViewModelFactory() }
 )
 
 @MainThread

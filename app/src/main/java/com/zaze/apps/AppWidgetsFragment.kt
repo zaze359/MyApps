@@ -81,6 +81,6 @@ class AppWidgetsFragment : AbsFragment() {
                 loader.startConfigActivity(requireActivity(), REQUEST_CREATE_APPWIDGET)
             }
         }
-        viewModel.preloadAppWidgets()
+//        viewModel.preloadAppWidgets()
     }
 }
