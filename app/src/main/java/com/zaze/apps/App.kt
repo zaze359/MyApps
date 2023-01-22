@@ -11,7 +11,6 @@ import dagger.hilt.android.HiltAndroidApp
  */
 @HiltAndroidApp
 class App : BaseApplication() {
-
     companion object {
         fun getInstance() = BaseApplication.getInstance() as App
     }
