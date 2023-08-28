@@ -1,59 +1,60 @@
-<layout>
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <com.zaze.core.ui.TopAppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
-        <EditText
-            android:id="@+id/appSearchEt"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="搜索"
-            android:inputType="text"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-        <Button
-            android:id="@+id/appExtractBtn"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="提取数据"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/appCountTv"
-            app:layout_constraintTop_toBottomOf="@id/appSearchEt" />
+            app:layout_scrollFlags="scroll|enterAlways">
 
-        <TextView
-            android:id="@+id/appCountTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            app:layout_constraintBottom_toBottomOf="@id/appExtractBtn"
-            app:layout_constraintLeft_toRightOf="@id/appExtractBtn"
-            app:layout_constraintTop_toTopOf="@id/appExtractBtn"
-            tools:text="搜索到1111个应用" />
+            <Button
+                android:id="@+id/app_extract_data_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="提取数据"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/app_count_tv"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <CheckBox
-            android:id="@+id/appResolvingApkCb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="解析/sdcard/zaze/apk下apk"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appExtractBtn" />
+            <TextView
+                android:id="@+id/app_count_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                app:layout_constraintBottom_toBottomOf="@id/app_extract_data_btn"
+                app:layout_constraintLeft_toRightOf="@id/app_extract_data_btn"
+                app:layout_constraintTop_toTopOf="@id/app_extract_data_btn"
+                tools:text="搜索到1111个应用" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/appListRecycleView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appResolvingApkCb" />
+            <CheckBox
+                android:id="@+id/app_resolving_apk_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="解析/sdcard/zaze/apk下apk"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/app_extract_data_btn" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.zaze.core.ui.TopAppBarLayout>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/app_list_recycle_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 

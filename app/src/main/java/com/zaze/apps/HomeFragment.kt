@@ -29,13 +29,13 @@ class HomeFragment : AbsSlidingPanelFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getBottomNavigation().setOnNavigationItemSelectedListener {
+        getBottomNavigation().setOnItemSelectedListener {
             selectFragment(it.itemId)
             true
         }
         lifecycleScope.launchWhenResumed {
             if (savedInstanceState == null) {
-                selectFragment(R.id.overview_dest)
+                selectFragment(R.id.overview_fragment)
             } else {
                 currentFragment = childFragmentManager.findFragmentById(R.id.home_container)
             }
@@ -60,8 +60,8 @@ class HomeFragment : AbsSlidingPanelFragment() {
             return
         }
         when (itemId) {
-            R.id.overview_dest -> OverviewFragment()
-            R.id.app_list_dest -> AppListFragment()
+            R.id.overview_fragment -> OverviewFragment()
+            R.id.app_list_fragment -> AppListFragment()
             else -> HomePagerFragment()
         }.also {
             currentFragment = it

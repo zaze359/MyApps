@@ -6,17 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.adapters.AppDetailAdapter
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppDetailBinding
-import com.zaze.apps.ext.myViewModels
+import com.zaze.apps.ext.initToolbar
 import com.zaze.apps.viewmodels.AppDetailViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -25,8 +26,8 @@ import kotlinx.coroutines.launch
  * @version : 2021-08-04 - 09:24
  */
 class AppDetailFragment : AbsFragment() {
-    private lateinit var dataBinding: FragmentAppDetailBinding
-    private val viewModel: AppDetailViewModel by myViewModels()
+    private lateinit var binding: FragmentAppDetailBinding
+    private val viewModel: AppDetailViewModel by viewModels()
     private val bindAppwidgetRequest =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             ZLog.i(ZTag.TAG, "result: ${it.resultCode}, ${it.data}")
@@ -40,46 +41,49 @@ class AppDetailFragment : AbsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        dataBinding = FragmentAppDetailBinding.inflate(inflater, container, false)
-        dataBinding.lifecycleOwner = viewLifecycleOwner
-        dataBinding.viewModel = viewModel
-        return dataBinding.root
+        binding = FragmentAppDetailBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dataBinding.appDetailRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        dataBinding.appDirRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        initToolbar(binding.toolbar) {
+            it.setNavigationOnClickListener {
+                findNavController().navigateUp()
+            }
+        }
+        binding.appDetailRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.appDirRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val safeArgs: AppDetailFragmentArgs by navArgs()
         lifecycleScope.launch {
             viewModel.appShortcut.collect { app ->
                 app?.let {
-                    dataBinding.appNameTv.text = app.appName
-                    dataBinding.appVersionNameTv.text = app.versionName
-                    dataBinding.appIconIv.setImageBitmap(app.appIcon)
+                    binding.appNameTv.text = app.appName
+                    binding.appVersionNameTv.text = app.versionName
+                    binding.appIconIv.setImageBitmap(app.getAppIcon(context))
                 }
             }
         }
         lifecycleScope.launch {
             viewModel.appDetailItems.collect { items ->
-                dataBinding.appDetailRecyclerView.adapter = AppDetailAdapter().apply {
-                    setDataList(items, false)
+                binding.appDetailRecyclerView.adapter = AppDetailAdapter().apply {
+                    submitList(items)
                 }
             }
         }
         lifecycleScope.launch {
             viewModel.appDirs.collect { dirs ->
-                dataBinding.appDirRecyclerView.adapter = AppDetailAdapter().apply {
-                    setDataList(dirs, false)
+                binding.appDirRecyclerView.adapter = AppDetailAdapter().apply {
+                    submitList(dirs)
                 }
             }
         }
         lifecycleScope.launch {
             viewModel.appWidgets.collect { appWidgets ->
-                dataBinding.appWidgetsLayout.removeAllViews()
+                binding.appWidgetsLayout.removeAllViews()
                 appWidgets.forEach {
                     it.isFocusable = true
-                    dataBinding.appWidgetsLayout.addView(it)
+                    binding.appWidgetsLayout.addView(it)
                 }
             }
         }

@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppWidgetsBinding
-import com.zaze.apps.ext.myViewModels
 import com.zaze.apps.viewmodels.AppWidgetsViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
  */
 class AppWidgetsFragment : AbsFragment() {
     private lateinit var dataBinding: FragmentAppWidgetsBinding
-    private val viewModel: AppWidgetsViewModel by myViewModels()
+    private val viewModel: AppWidgetsViewModel by viewModels()
     private var appWidgetsJob: Job? = null
     private var bindWidgetJob: Job? = null
     private var startWidgetConfigJob: Job? = null
@@ -52,7 +52,6 @@ class AppWidgetsFragment : AbsFragment() {
         savedInstanceState: Bundle?
     ): View {
         dataBinding = FragmentAppWidgetsBinding.inflate(inflater, container, false)
-        dataBinding.lifecycleOwner = viewLifecycleOwner
         return dataBinding.root
     }
 

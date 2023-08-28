@@ -11,8 +11,6 @@ import android.os.Build
 import android.os.storage.StorageManager
 import androidx.annotation.RequiresApi
 import com.google.gson.annotations.Expose
-import com.zaze.apps.App
-import com.zaze.apps.base.BaseApplication
 import com.zaze.utils.AppUtil
 import com.zaze.utils.SignaturesUtil
 import com.zaze.utils.log.ZLog
@@ -46,51 +44,55 @@ data class AppShortcut(
 
     @Transient
     @Expose(serialize = false, deserialize = false)
-    var appIcon: Bitmap? = null
-        get() {
-            if (field == null) {
-                // 不赋值，icon 单独保存
-                return ApplicationManager.getAppIconHasDefault(packageName)
-            }
-            return field
+    private var appIcon: Bitmap? = null
+
+    fun updateAppIcon(bitmap: Bitmap) {
+        appIcon = bitmap
+    }
+
+    fun getAppIcon(context: Context? = null): Bitmap? {
+        if (appIcon == null && context != null) {
+            // 默认Icon 不赋值，每次都从ApplicationManager缓存中获取
+            return ApplicationManager.getAppIconHasDefault(context, packageName)
         }
+        return appIcon
+    }
 
     @Transient
     @Expose(serialize = false, deserialize = false)
-    var packageInfo: PackageInfo? = null
-        get() {
-            return when {
-                field != null -> {
-                    field
-                }
-                isInstalled -> {
-                    field = AppUtil.getPackageInfo(App.getInstance(), packageName)
-                    field
-                }
-                else -> {
-                    null
-                }
+    private var packageInfo: PackageInfo? = null
+    fun getPackageInfo(context: Context): PackageInfo? {
+        return when {
+            packageInfo != null -> {
+                packageInfo
+            }
+            isInstalled -> {
+                packageInfo = AppUtil.getPackageInfo(context, packageName)
+                packageInfo
+            }
+            else -> {
+                null
             }
         }
-
+    }
 
     @Transient
     @Expose(serialize = false, deserialize = false)
-    var applicationInfo: ApplicationInfo? = null
-        get() {
-            return when {
-                field != null -> {
-                    field
-                }
-                isInstalled -> {
-                    field = AppUtil.getApplicationInfo(App.getInstance(), packageName)
-                    field
-                }
-                else -> {
-                    null
-                }
+    private var applicationInfo: ApplicationInfo? = null
+    fun getApplicationInfo(context: Context): ApplicationInfo? {
+        return when {
+            applicationInfo != null -> {
+                applicationInfo
+            }
+            isInstalled -> {
+                applicationInfo = AppUtil.getApplicationInfo(context, packageName)
+                applicationInfo
+            }
+            else -> {
+                null
             }
         }
+    }
 
     companion object {
         fun empty(packageName: String): AppShortcut {
@@ -128,9 +130,8 @@ data class AppShortcut(
         return flags and ApplicationInfo.FLAG_SYSTEM != 0
     }
 
-    fun getSignatures() {
-        SignaturesUtil.getSignatures(object :
-            ContextWrapper(BaseApplication.getInstance()) {
+    fun getSignatures(context: Context) {
+        SignaturesUtil.getSignatures(object : ContextWrapper(context) {
             override fun getPackageName(): String {
                 return this@AppShortcut.packageName
             }
@@ -138,12 +139,10 @@ data class AppShortcut(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun queryStorageStats() {
-        val context = App.getInstance()
-        val storageManager = context
-            .getSystemService(Context.STORAGE_SERVICE) as StorageManager
-        val storageStatsManager = context
-            .getSystemService(Context.STORAGE_STATS_SERVICE) as StorageStatsManager
+    fun queryStorageStats(context: Context) {
+        val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        val storageStatsManager =
+            context.getSystemService(Context.STORAGE_STATS_SERVICE) as StorageStatsManager
         storageManager.storageVolumes.forEach { volume ->
             val uuid = volume.uuid?.let {
                 UUID.fromString(it)
@@ -160,10 +159,10 @@ data class AppShortcut(
         }
     }
 
-    fun getResource(): Resources? {
+    fun getResource(context: Context): Resources? {
         return applicationInfo?.let {
             try {
-                App.getInstance().packageManager.getResourcesForApplication(it)
+                context.packageManager.getResourcesForApplication(it)
             } catch (e: Exception) {
                 null
             }

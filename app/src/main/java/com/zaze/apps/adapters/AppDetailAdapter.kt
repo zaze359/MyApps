@@ -16,7 +16,7 @@ class AppDetailAdapter : BaseRecyclerAdapter<AppDetailItem, AppDetailAdapter.App
 
     override fun onBindView(holder: AppDetailHolder, value: AppDetailItem, position: Int) {
         holder.binding.appDetailTagTv.text = value.key
-        holder.binding.appDetailContentTv.text = value.value
+        holder.binding.appDetailContentTv.text = value.value ?: ""
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppDetailHolder {

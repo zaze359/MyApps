@@ -21,8 +21,14 @@ import org.json.JSONObject
  */
 //@HiltViewModel
 class AppListViewModel constructor(application: Application) : AbsAndroidViewModel(application) {
+    private val viewModelState = MutableStateFlow(AppViewModelState())
+    val uiState = viewModelState.map(AppViewModelState::toUiState).stateIn(
+        viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState()
+    )
+
     private var matchHistory = ""
     val appData = MutableStateFlow<List<AppShortcut>>(emptyList())
+
 
     // --------------------------------------------------
     val apkDir = "${application.getExternalFilesDir(null)}/apk"
@@ -39,12 +45,32 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
     val jsonExtractFile = "$baseDir/jsonExtract.xml"
 
     // --------------------------------------------------
-    fun loadAllApps() {
-        loadApps(matchHistory)
+    fun loadData() {
+//        loadApps(matchHistory)
+        viewModelScope.launch(Dispatchers.IO) {
+            loadAllApps()
+        }
     }
 
-    fun searchApps(filter: String) {
-        loadApps(filter)
+    private suspend fun loadAllApps() {
+        TraceHelper.beginSection("loadAllApps")
+        viewModelState.update {
+            it.copy(allApps = ApplicationManager.getInstallApps().values.toList())
+        }
+        TraceHelper.endSection("loadAllApps")
+//
+//            matchHistory = filter
+//            val list = filterApp(ApplicationManager.getInstallApps().values, filter)
+//            appData.value = list
+    }
+
+
+    fun searchApps(searchWords: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            viewModelState.update {
+                it.copy(searchedApps = filterApp(it.allApps, searchWords))
+            }
+        }
     }
 
     private fun loadApps(filter: String) {
@@ -152,4 +178,26 @@ class AppListViewModel constructor(application: Application) : AbsAndroidViewMod
             )
         }
     }
+
+    fun clearSearchInfo() {
+        viewModelState.update {
+            it.copy(searchedApps = emptyList())
+        }
+    }
+}
+
+private data class AppViewModelState(
+    val allApps: List<AppShortcut> = emptyList(),
+    val searchedApps: List<AppShortcut> = emptyList(),
+) {
+    fun toUiState(): AppUiState {
+        return AppUiState.AppList(apps = allApps, searchedApps = searchedApps)
+    }
+}
+
+sealed class AppUiState {
+    data class AppList(
+        val apps: List<AppShortcut>,
+        val searchedApps: List<AppShortcut>
+    ) : AppUiState()
 }

@@ -1,7 +1,6 @@
 package com.zaze.apps.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.viewModelScope
 import com.zaze.apps.AppListFragment
 import com.zaze.apps.AppWidgetsFragment
 import com.zaze.apps.OverviewFragment
@@ -20,21 +19,21 @@ class HomePagerViewModel(application: Application) : AbsAndroidViewModel(applica
     val homePages = MutableStateFlow(
         listOf(
             HomePage(
-                R.id.app_list_dest,
+                R.id.app_list_fragment,
                 getString(R.string.apps),
-                R.drawable.ic_baseline_apps_24,
+                R.drawable.ic_apps,
                 AppListFragment()
             ),
             HomePage(
-                R.id.overview_dest,
+                R.id.overview_fragment,
                 getString(R.string.overview),
-                R.drawable.ic_baseline_assessment_24,
+                R.drawable.ic_assessment,
                 OverviewFragment()
             ),
             HomePage(
-                R.id.app_list_dest,
+                R.id.app_list_fragment,
                 getString(R.string.home),
-                R.drawable.ic_baseline_assessment_24,
+                R.drawable.ic_assessment,
                 AppWidgetsFragment()
             )
         )

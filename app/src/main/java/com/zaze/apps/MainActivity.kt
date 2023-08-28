@@ -2,37 +2,67 @@ package com.zaze.apps
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.databinding.DataBindingUtil
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
-import com.zaze.apps.base.AbsActivity
+import androidx.navigation.ui.setupWithNavController
 import com.zaze.apps.appwidgets.WidgetHostViewLoader
+import com.zaze.apps.base.AbsSlidingPanelActivity
 import com.zaze.apps.databinding.ActivityMainBinding
+import com.zaze.apps.ext.gone
+import com.zaze.apps.ext.visible
+import com.zaze.core.ext.currentNavFragment
+import com.zaze.core.ext.findNavController
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AbsActivity() {
-    private var myNavController: NavController? = null
+class MainActivity : AbsSlidingPanelActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val dataBinding =
-            DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-        // --------------------------------------------------
-        setSupportActionBar(dataBinding.toolbar)
-        val navController =
-            (supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment?)?.navController
-                ?: return
-        myNavController = navController
-        setupActionBarWithNavController(navController, AppBarConfiguration(navController.graph))
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(wrapSlidingMusicPanel(binding.root))
+        setupNavigationController()
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return myNavController?.navigateUp() ?: super.onSupportNavigateUp()
+    private fun setupNavigationController() {
+        val navController = findNavController(R.id.fragment_container)
+//        myNavController = navController
+//        setupActionBarWithNavController(navController, AppBarConfiguration(navController.graph))
+        bottomNavigationView.setupWithNavController(navController)
+        bottomNavigationView.setOnItemReselectedListener {
+            currentNavFragment(R.id.fragment_container).apply {
+                // scrollToTop()
+            }
+        }
+        val navGraph = navController.graph
+        navController.addOnDestinationChangedListener { controller, destination, _ ->
+//            if (destination.id == navGraph.startDestinationId) {
+//                currentNavFragment(R.id.fragment_container)?.enterTransition = null
+//            }
+            when (destination.id) {
+                R.id.home_fragment, R.id.app_list_fragment, R.id.overview_fragment -> {
+                    bottomNavigationView.visible()
+                }
+
+                else -> {
+                    bottomNavigationView.gone()
+                }
+            }
+
+//            binding.toolbar.setNavigationIcon(R.drawable.icon_return)
+//            if(controller.currentDestination?.id == controller.graph.startDestinationId) {
+//                binding.toolbar.setNavigationOnClickListener {
+//                    finish()
+//                }
+//            } else {
+//                binding.toolbar.setNavigationOnClickListener {
+//                    controller.navigateUp()
+//                }
+//            }
+        }
     }
+
+    override fun onSupportNavigateUp() = findNavController(R.id.fragment_container).navigateUp()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

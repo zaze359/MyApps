@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/settings_pref_header_theme">
+
+        <ListPreference
+            android:defaultValue="auto"
+            android:entries="@array/settings_pref_theme_list_titles"
+            android:entryValues="@array/settings_pref_theme_list_values"
+            android:key="theme_mode"
+            android:layout="@layout/settings_item_pref_list"
+            android:title="@string/settings_pref_title_theme"
+            app:icon="@drawable/settings_ic_palette_outline" />
+
+        <CheckBoxPreference
+            android:defaultValue="@bool/md3_enabled"
+            android:disableDependentsState="true"
+            android:key="material_you"
+            android:layout="@layout/settings_item_pref_switch_no_title"
+            android:title="@string/settings_pref_title_md3"
+            app:isPreferenceVisible="@bool/md3_available" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="@string/settings_pref_header_color">
+
+        <CheckBoxPreference
+            android:dependency="material_you"
+            android:key="key_sound"
+            android:layout="@layout/settings_item_pref_switch"
+            android:summary="key_sound_summary"
+            android:title="key_sound_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

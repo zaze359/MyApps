@@ -9,7 +9,7 @@ import com.zaze.apps.data.Card
 import com.zaze.apps.ext.action
 import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.utils.ApplicationManager
-import com.zaze.apps.utils.SingleLiveEvent
+import com.zaze.core.common.utils.SingleLiveEvent
 import com.zaze.utils.DescriptionUtil
 import com.zaze.utils.StorageLoader
 import com.zaze.utils.TraceHelper
@@ -54,7 +54,7 @@ class OverviewViewModel : AbsViewModel() {
             Card.Overview(
                 title = "应用统计: ${allAppSize}个",
                 content = "${allAppSize - systemAppSize}个用户应用  ${systemAppSize}个系统应用",
-                iconRes = R.drawable.ic_baseline_assessment_24,
+                iconRes = R.drawable.ic_assessment,
                 doAction = {
                     showAppsAction.action()
                 }
@@ -66,7 +66,7 @@ class OverviewViewModel : AbsViewModel() {
                 Card.Overview(
                     title = "Usage access denied",
                     content = "授予使用情况访问权限已启用更多功能",
-                    iconRes = R.drawable.ic_baseline_assessment_24,
+                    iconRes = R.drawable.ic_assessment,
                     actionName = "GO", doAction = {
                         requestAppUsagePermissionAction.action()
                     }
@@ -79,7 +79,7 @@ class OverviewViewModel : AbsViewModel() {
                 Card.Apps(
                     title = "最近更新TOP${apps.size}",
                     apps = apps,
-                    iconRes = R.drawable.ic_baseline_apps_24,
+                    iconRes = R.drawable.ic_apps,
                 )
             )
             // --------------------------------------------------

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ColorIconView">
+        <attr name="iconBackgroundColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="AddImageLayout">
+        <attr name="hSpace" format="dimension" />
+        <attr name="vSpace" format="dimension" />
+    </declare-styleable>
+
+</resources>

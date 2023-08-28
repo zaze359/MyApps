@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.zaze.apps.App
 import com.zaze.apps.OverviewFragmentDirections
 import com.zaze.apps.base.adapter.BaseRecyclerAdapter
 import com.zaze.apps.databinding.ItemLatelyUpdateAppBinding
@@ -28,7 +29,7 @@ class LatelyUpdateAdapter :
     }
 
     override fun onBindView(holder: LatelyUpdateHolder, value: AppShortcut, position: Int) {
-        holder.binding.latelyUpdateAppIv.setImageBitmap(value.appIcon)
+        holder.binding.latelyUpdateAppIv.setImageBitmap(value.getAppIcon(App.getInstance()))
         holder.binding.latelyUpdateAppNameTv.text = value.appName
         holder.binding.latelyUpdateAppUpdateTimeTv.text =
             DateUtil.timeMillisToString(value.lastUpdateTime, "yyyy.MM.dd")

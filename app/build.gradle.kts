@@ -23,18 +23,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // region compose
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
-    }
-    // endregion compose
-
-    dataBinding {
-        enable = true
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     testOptions {
@@ -54,12 +54,13 @@ android {
 //}
 
 dependencies {
+    testImplementation(project(":core:testing"))
 
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    testImplementation(libs.junit)
+
 
     // region hilt
     implementation(libs.androidx.hilt.navigation.compose)
@@ -84,10 +85,20 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.iconsExtended)
 
+    // Android Studio Preview support
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.compose.ui.tooling.preview)
 
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.appcompat)
+
+    implementation(libs.androidx.compose.ui.googlefonts)
+
+    implementation(libs.androidx.dataStore.core)
+    implementation(libs.androidx.dataStore.preferences)
+    implementation(project(":core:common"))
+    implementation(project(":feature:settings"))
 
 
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -108,6 +119,9 @@ dependencies {
 //    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle"
 
 //    implementation 'io.github.zaze359:zaze-common:1.0.0-SNAPSHOT'
-    implementation("io.github.zaze359:zaze-utils:1.0.1-SNAPSHOT")
+
+//    implementation(project(":core:designsystem"))
+
+
 //    implementation 'pub.devrel:easypermissions:3.0.0'
 }

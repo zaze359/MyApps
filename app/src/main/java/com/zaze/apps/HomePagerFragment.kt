@@ -5,16 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.forEachIndexed
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.widget.ViewPager2
+import androidx.lifecycle.repeatOnLifecycle
 import com.zaze.apps.adapters.HomePagerAdapter
 import com.zaze.apps.base.AbsSlidingPanelFragment
 import com.zaze.apps.databinding.FragmentHomePagerBinding
-import com.zaze.apps.ext.myViewModels
 import com.zaze.apps.viewmodels.HomePagerViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * Description :
@@ -24,7 +25,7 @@ import kotlinx.coroutines.flow.collect
 class HomePagerFragment : AbsSlidingPanelFragment() {
 
     private lateinit var dataBinding: FragmentHomePagerBinding
-    private val homePagerViewModel: HomePagerViewModel by myViewModels()
+    private val homePagerViewModel: HomePagerViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,7 +56,7 @@ class HomePagerFragment : AbsSlidingPanelFragment() {
 //        bottomNavView.setOnNavigationItemReselectedListener {
 //            ZLog.i(ZTag.TAG, "homeViewPager ReselectedListener")
 //        }
-        bottomNavView.setOnNavigationItemSelectedListener {
+        bottomNavView.setOnItemSelectedListener {
             bottomNavView.menu.forEachIndexed { index, item ->
                 ZLog.i(ZTag.TAG, "homeViewPager NavigationItemSelected: ${item.itemId}; $index")
                 if (it.itemId == item.itemId) {
@@ -64,10 +65,11 @@ class HomePagerFragment : AbsSlidingPanelFragment() {
             }
             true
         }
-
-        lifecycleScope.launchWhenResumed {
-            homePagerViewModel.homePages.collect {
-                dataBinding.homeViewPager.adapter = HomePagerAdapter(this@HomePagerFragment, it)
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homePagerViewModel.homePages.collect {
+                    dataBinding.homeViewPager.adapter = HomePagerAdapter(this@HomePagerFragment, it)
+                }
             }
         }
     }

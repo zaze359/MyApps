@@ -2,8 +2,6 @@ package com.zaze.apps.utils
 
 import android.content.Context
 import android.content.Intent
-import com.zaze.apps.utils.AppShortcut.Companion.transform
-import com.zaze.apps.utils.AppShortcut.Companion.empty
 import com.zaze.utils.BmpUtil.drawable2Bitmap
 import android.graphics.Bitmap
 import com.zaze.apps.base.BaseApplication
@@ -18,8 +16,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.LruCache
 import androidx.core.content.FileProvider
-import com.zaze.apps.R
 import androidx.core.content.res.ResourcesCompat
+import com.zaze.apps.R
 import com.zaze.utils.AppUtil
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
@@ -113,7 +111,7 @@ object ApplicationManager {
         return if (packageInfo != null) {
             packageInfo.applicationInfo.sourceDir = apkFilePath
             packageInfo.applicationInfo.publicSourceDir = apkFilePath
-            val appShortcut = transform(BaseApplication.getInstance(), packageInfo)
+            val appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo)
             appShortcut
         } else {
             null
@@ -135,9 +133,9 @@ object ApplicationManager {
         )
     ): AppShortcut {
         val appShortcut = if (packageInfo == null) {
-            empty(packageName)
+            AppShortcut.empty(packageName)
         } else {
-            transform(BaseApplication.getInstance(), packageInfo)
+            AppShortcut.transform(BaseApplication.getInstance(), packageInfo)
         }
         saveShortcutToCache(appShortcut.packageName, appShortcut)
         return appShortcut
@@ -149,7 +147,11 @@ object ApplicationManager {
      *
      * @return 应用图标
      */
-    fun getAppIconHasDefault(packageName: String): Bitmap? {
+    fun getAppIconHasDefault(context: Context, packageName: String): Bitmap? {
+        return getAppIcon(context, packageName) ?: getAppDefaultLogo()
+    }
+
+    fun getAppIcon(context: Context, packageName: String): Bitmap? {
         if (TextUtils.isEmpty(packageName)) {
             return null
         }
@@ -159,16 +161,14 @@ object ApplicationManager {
         }
         val appShortcut = getAppShortcut(packageName)
         var appIcon: Drawable? = null
-        val applicationInfo = appShortcut.applicationInfo
+        val applicationInfo = appShortcut.getApplicationInfo(context)
         if (applicationInfo != null) {
             val resources = getAppResources(applicationInfo)
             if (resources != null) {
                 appIcon = getFullResIcon(resources, applicationInfo.icon)
             }
         }
-        if (appIcon == null) {
-            bitmap = getAppDefaultLogo()
-        } else {
+        if (appIcon != null) {
             bitmap = formatIcon(appIcon)
             BITMAP_CACHE.put(packageName, bitmap)
         }

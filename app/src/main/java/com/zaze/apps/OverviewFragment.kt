@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentOverviewBinding
 import com.zaze.apps.adapters.CardsAdapter
+import com.zaze.apps.ext.setupActionBar
 import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.viewmodels.OverviewViewModel
 import com.zaze.utils.log.ZLog
@@ -46,6 +47,8 @@ class OverviewFragment : AbsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupActionBar(binding.toolbar)
+
         viewModel.showAppsAction.observe(viewLifecycleOwner) {}
         viewModel.requestAppUsagePermissionAction.observe(viewLifecycleOwner) {
             AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)

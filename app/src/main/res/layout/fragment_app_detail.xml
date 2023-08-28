@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
 
-    <data>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-        <variable
-            name="viewModel"
-            type="com.zaze.apps.viewmodels.AppDetailViewModel" />
-
-    </data>
-
-    <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:liftOnScroll="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:title="@string/app_detail" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_bar_layout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
 
             <ImageView
                 android:id="@+id/app_icon_iv"
@@ -36,7 +52,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:textColor="@color/black"
                 app:layout_constraintBottom_toTopOf="@+id/app_version_name_tv"
                 app:layout_constraintLeft_toRightOf="@id/app_icon_iv"
                 app:layout_constraintTop_toTopOf="@id/app_icon_iv"
@@ -79,8 +94,7 @@
                         style="@style/TextSize.H3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_detail"
-                        android:textColor="@color/black" />
+                        android:text="@string/app_detail" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/app_detail_recycler_view"
@@ -111,8 +125,7 @@
                         style="@style/TextSize.H3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_dirs"
-                        android:textColor="@color/black" />
+                        android:text="@string/app_dirs" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/app_dir_recycler_view"
@@ -144,8 +157,7 @@
                         style="@style/TextSize.H3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/app_dirs"
-                        android:textColor="@color/black" />
+                        android:text="@string/app_dirs" />
 
                     <LinearLayout
                         android:id="@+id/app_widgets_layout"
@@ -157,8 +169,8 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
-</layout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.zaze.apps.viewmodels
 import android.appwidget.AppWidgetHostView
 import android.os.Build
 import androidx.lifecycle.viewModelScope
+import com.zaze.apps.App
 import com.zaze.apps.appwidgets.*
 import com.zaze.apps.appwidgets.compat.AppWidgetManagerCompat
 import com.zaze.apps.base.AbsViewModel
@@ -74,7 +75,7 @@ class AppDetailViewModel : AbsViewModel() {
                 )
             )
             appDetailItems.add(AppDetailItem("UID", app.uid.toString()))
-            app.applicationInfo?.let {
+            app.getApplicationInfo(App.getInstance())?.let {
                 appDetailItems.add(
                     AppDetailItem("目标 SDK", it.targetSdkVersion.toString())
                 )
