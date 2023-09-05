@@ -2,13 +2,57 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/app_list_fragment">
+    app:startDestination="@id/overview_fragment">
 
     <fragment
-        android:id="@+id/home_fragment"
-        android:name="com.zaze.apps.HomeFragment"
+        android:id="@+id/overview_fragment"
+        android:name="com.zaze.apps.OverviewFragment"
+        android:label="@string/app_detail"
+        tools:layout="@layout/fragment_overview">
+        <action
+            android:id="@+id/app_detail_action"
+            app:destination="@+id/app_detail_fragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/app_list_fragment"
+        android:name="com.zaze.apps.applist.AppListFragment"
         android:label="@string/apps"
-        tools:layout="@layout/fragment_home">
+        tools:layout="@layout/fragment_app_list" />
+
+    <fragment
+        android:id="@+id/app_detail_fragment"
+        android:name="com.zaze.apps.AppDetailFragment"
+        android:label="@string/app_detail"
+        tools:layout="@layout/fragment_app_detail">
+
+        <argument
+            android:name="packageName"
+            app:argType="string" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/settings_fragment"
+        android:name="com.zaze.apps.feature.settings.SettingsNavFragment"
+        android:label="@string/action_settings" />
+
+    <fragment
+        android:id="@+id/app_search_fragment"
+        android:name="com.zaze.apps.AppSearchFragment"
+        android:label="@string/action_search"
+        tools:layout="@layout/fragment_app_search" />
+
+    <fragment
+        android:id="@+id/app_widgets_fragment"
+        android:name="com.zaze.apps.AppWidgetsFragment"
+        android:label="@string/apps"
+        tools:layout="@layout/fragment_app_widgets">
 
         <action
             android:id="@+id/app_detail_action"
@@ -34,60 +78,6 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
-
-    <fragment
-        android:id="@+id/overview_fragment"
-        android:name="com.zaze.apps.OverviewFragment"
-        android:label="@string/app_detail"
-        tools:layout="@layout/fragment_overview">
-        <action
-            android:id="@+id/app_detail_action"
-            app:destination="@+id/app_detail_fragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/app_list_fragment"
-        android:name="com.zaze.apps.AppListFragment"
-        android:label="@string/apps"
-        tools:layout="@layout/fragment_app_list">
-
-        <action
-            android:id="@+id/app_detail_action"
-            app:destination="@+id/app_detail_fragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/app_detail_fragment"
-        android:name="com.zaze.apps.AppDetailFragment"
-        android:label="@string/app_detail"
-        tools:layout="@layout/fragment_app_detail">
-
-        <argument
-            android:name="packageName"
-            app:argType="string" />
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/settings_fragment"
-        android:name="com.zaze.apps.feature.settings.SettingsNavFragment"
-        android:label="@string/action_settings" />
-
-    <fragment
-        android:id="@+id/app_search_fragment"
-        android:name="com.zaze.apps.AppSearchFragment"
-        android:label="@string/action_search"
-        tools:layout="@layout/fragment_app_search" />
 
 
 </navigation>

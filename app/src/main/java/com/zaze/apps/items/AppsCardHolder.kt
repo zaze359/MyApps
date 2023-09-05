@@ -20,7 +20,7 @@ class AppsCardHolder(private val binding: ItemCardAppsBinding) :
         binding.appsRecyclerView.let {
             it.layoutManager = LinearLayoutManager(itemView.context, RecyclerView.HORIZONTAL, false)
             it.adapter = LatelyUpdateAdapter().apply {
-                setDataList(value.apps, false)
+                submitList(value.apps)
             }
         }
     }

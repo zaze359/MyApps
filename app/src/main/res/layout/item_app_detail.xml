@@ -10,7 +10,6 @@
 
     <TextView
         android:id="@+id/app_detail_tag_tv"
-        style="@style/TextSize"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
@@ -18,7 +17,6 @@
 
     <TextView
         android:id="@+id/app_detail_content_tv"
-        style="@style/TextSize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:text="MyApp" />

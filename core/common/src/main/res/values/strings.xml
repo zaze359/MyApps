@@ -2,4 +2,8 @@
 <resources>
     <string name="cancel">取消</string>
     <string name="sure">确定</string>
+
+    <string name="action_sort_order">排序</string>
+    <string name="action_settings">设置</string>
+    <string name="action_search">搜索</string>
 </resources>

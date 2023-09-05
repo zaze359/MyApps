@@ -47,7 +47,8 @@ class AppDetailFragment : AbsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initToolbar(binding.toolbar) {
+        initToolbar(binding.appBarLayout.toolbar) {
+            setTitle(R.string.app_detail)
             it.setNavigationOnClickListener {
                 findNavController().navigateUp()
             }

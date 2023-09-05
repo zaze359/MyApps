@@ -1,6 +1,8 @@
 package com.zaze.apps
 
+import androidx.core.content.ContextCompat
 import com.zaze.apps.base.BaseApplication
+import com.zaze.apps.receiver.PackageReceiver
 import com.zaze.utils.TraceHelper
 import dagger.hilt.android.HiltAndroidApp
 
@@ -18,5 +20,12 @@ class App : BaseApplication() {
     override fun onCreate() {
         super.onCreate()
         TraceHelper.enable(BuildConfig.DEBUG)
+        ContextCompat.registerReceiver(
+            this,
+            PackageReceiver(),
+            PackageReceiver.createIntentFilter(),
+            ContextCompat.RECEIVER_EXPORTED
+        )
+
     }
 }

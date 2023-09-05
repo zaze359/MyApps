@@ -2,29 +2,29 @@ package com.zaze.apps.utils
 
 import android.content.Context
 import android.content.Intent
-import com.zaze.utils.BmpUtil.drawable2Bitmap
 import android.graphics.Bitmap
-import com.zaze.apps.base.BaseApplication
 import android.text.TextUtils
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.LruCache
-import androidx.core.content.FileProvider
-import androidx.core.content.res.ResourcesCompat
 import com.zaze.apps.R
+import com.zaze.apps.base.BaseApplication
 import com.zaze.utils.AppUtil
+import com.zaze.utils.BmpUtil
+import com.zaze.utils.ext.BitmapExt
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import java.io.File
-import java.lang.Exception
 import java.lang.ref.SoftReference
 import java.util.HashMap
+import java.util.concurrent.ConcurrentSkipListSet
 
 /**
  * Description : 对应用信息进行管理
@@ -34,18 +34,39 @@ import java.util.HashMap
  * @author : ZAZE
  * @version : 2017-12-22 - 17:22
  */
-object ApplicationManager {
+object ApplicationManager : AppChangeListener {
     val invariantDeviceProfile = InvariantDeviceProfile()
+
+    private val appObserver = ArrayList<AppChangeListener>()
 
     /**
      * 默认logo缓存
      */
     private var defaultLogoBmpRef: SoftReference<Bitmap?>? = null
+    private val useDefaultIconApps = ConcurrentSkipListSet<String>()
 
     /**
      * 应用图标bitmap 缓存
+     * 占总内存的 1/8，KB
      */
-    private val BITMAP_CACHE = LruCache<String, Bitmap?>(60)
+//    private val BITMAP_CACHE = LruCache<String, Bitmap?>(60)
+    private val BITMAP_CACHE =
+        object : LruCache<String, Bitmap?>((Runtime.getRuntime().maxMemory() / 1024).toInt() / 8) {
+            override fun sizeOf(key: String?, value: Bitmap?): Int {
+                if (value == null) return super.sizeOf(key, null)
+                // 返回bitmap的内存大小
+                return value.rowBytes * value.height / 1024
+            }
+
+            override fun entryRemoved(
+                evicted: Boolean,
+                key: String?,
+                oldValue: Bitmap?,
+                newValue: Bitmap?
+            ) {
+                super.entryRemoved(evicted, key, oldValue, newValue)
+            }
+        }
 
     /**
      * 应用信息缓存
@@ -55,7 +76,9 @@ object ApplicationManager {
 
     // --------------------------------------------------
     private fun saveShortcutToCache(packageName: String, appShortcut: AppShortcut) {
-        SHORTCUT_CACHE[packageName] = appShortcut
+        synchronized(SHORTCUT_CACHE) {
+            SHORTCUT_CACHE[packageName] = appShortcut
+        }
     }
 
     /**
@@ -70,7 +93,9 @@ object ApplicationManager {
 
     fun clearAllCache() {
         BITMAP_CACHE.evictAll()
-        SHORTCUT_CACHE.clear()
+        synchronized(SHORTCUT_CACHE) {
+            SHORTCUT_CACHE.clear()
+        }
     }
 
     fun clearCache(packageName: String) {
@@ -78,7 +103,10 @@ object ApplicationManager {
     }
 
     private fun clearAppCache(packageName: String) {
-        SHORTCUT_CACHE.remove(packageName)
+        synchronized(SHORTCUT_CACHE) {
+            SHORTCUT_CACHE.remove(packageName)
+        }
+        useDefaultIconApps.remove(packageName)
         BITMAP_CACHE.remove(packageName)
     }
     // --------------------------------------------------
@@ -106,12 +134,12 @@ object ApplicationManager {
      * @param apkFilePath apkFilePath
      * @return AppShortcut
      */
-    fun getAppShortcutFormApk(apkFilePath: String): AppShortcut? {
-        val packageInfo = AppUtil.getPackageArchiveInfo(BaseApplication.getInstance(), apkFilePath)
+    fun getAppShortcutFormApk(context: Context, apkFilePath: String): AppShortcut? {
+        val packageInfo = AppUtil.getPackageArchiveInfo(context, apkFilePath)
         return if (packageInfo != null) {
             packageInfo.applicationInfo.sourceDir = apkFilePath
             packageInfo.applicationInfo.publicSourceDir = apkFilePath
-            val appShortcut = AppShortcut.transform(BaseApplication.getInstance(), packageInfo)
+            val appShortcut = AppShortcut.create(context, packageInfo)
             appShortcut
         } else {
             null
@@ -135,7 +163,7 @@ object ApplicationManager {
         val appShortcut = if (packageInfo == null) {
             AppShortcut.empty(packageName)
         } else {
-            AppShortcut.transform(BaseApplication.getInstance(), packageInfo)
+            AppShortcut.create(BaseApplication.getInstance(), packageInfo)
         }
         saveShortcutToCache(appShortcut.packageName, appShortcut)
         return appShortcut
@@ -148,7 +176,12 @@ object ApplicationManager {
      * @return 应用图标
      */
     fun getAppIconHasDefault(context: Context, packageName: String): Bitmap? {
-        return getAppIcon(context, packageName) ?: getAppDefaultLogo()
+        if (useDefaultIconApps.contains(packageName)) {
+            return getAppDefaultLogo()
+        }
+        return getAppIcon(context, packageName) ?: getAppDefaultLogo().apply {
+            useDefaultIconApps.add(packageName)
+        }
     }
 
     fun getAppIcon(context: Context, packageName: String): Bitmap? {
@@ -161,7 +194,7 @@ object ApplicationManager {
         }
         val appShortcut = getAppShortcut(packageName)
         var appIcon: Drawable? = null
-        val applicationInfo = appShortcut.getApplicationInfo(context)
+        val applicationInfo = appShortcut.applicationInfo
         if (applicationInfo != null) {
             val resources = getAppResources(applicationInfo)
             if (resources != null) {
@@ -171,6 +204,7 @@ object ApplicationManager {
         if (appIcon != null) {
             bitmap = formatIcon(appIcon)
             BITMAP_CACHE.put(packageName, bitmap)
+            useDefaultIconApps.remove(packageName)
         }
         return bitmap
     }
@@ -193,32 +227,33 @@ object ApplicationManager {
     fun getAppDefaultLogo(): Bitmap? {
         var bitmap = defaultLogoBmpRef?.get()
         if (bitmap == null) {
-            bitmap = formatIcon(
-                getFullResIcon(
+            bitmap = BitmapExt.decodeToBitmap(
+                invariantDeviceProfile.iconBitmapSize,
+                invariantDeviceProfile.iconBitmapSize
+            ) {
+                BitmapFactory.decodeResource(
                     BaseApplication.getInstance().resources,
-                    R.mipmap.ic_launcher
+                    R.drawable.ic_app_default,
+                    it
                 )
-            )
+            }
+//            bitmap = formatIcon(
+//                getFullResIcon(
+//                    BaseApplication.getInstance().resources,
+//                    R.drawable.ic_app_default
+//                )
+//            )
             defaultLogoBmpRef = SoftReference(bitmap)
         }
         return bitmap
     }
 
     private fun getFullResIcon(resources: Resources, iconId: Int): Drawable? {
-        return try {
-            ResourcesCompat.getDrawableForDensity(
-                resources,
-                iconId,
-                invariantDeviceProfile.fillResIconDpi,
-                null
-            )
-        } catch (e: Exception) {
-            null
-        }
+        return AppUtil.getAppIcon(resources, iconId, invariantDeviceProfile.fillResIconDpi)
     }
 
     private fun formatIcon(drawable: Drawable?): Bitmap? {
-        return drawable2Bitmap(drawable, invariantDeviceProfile.iconBitmapSize)
+        return BmpUtil.drawable2Bitmap(drawable, invariantDeviceProfile.iconBitmapSize)
     }
     // --------------------------------------------------
     /**
@@ -240,18 +275,16 @@ object ApplicationManager {
     }
 
     fun getInstallApps(): Map<String, AppShortcut> {
-        initAllShortcuts()
-        return SHORTCUT_CACHE.filter {
+        return initAllShortcuts().filter {
             it.value.isInstalled
         }
     }
 
     fun getAllApps(): Map<String, AppShortcut> {
-        initAllShortcuts()
-        return SHORTCUT_CACHE.toMap()
+        return initAllShortcuts()
     }
 
-    fun initAllShortcuts() {
+    fun initAllShortcuts(): Map<String, AppShortcut> {
         synchronized(SHORTCUT_CACHE) {
             if (SHORTCUT_CACHE.isEmpty() || !allAppInitialized) {
                 AppUtil.getInstalledPackages(BaseApplication.getInstance(), 0).forEach {
@@ -259,6 +292,7 @@ object ApplicationManager {
                 }
                 allAppInitialized = true
             }
+            return SHORTCUT_CACHE
         }
     }
 
@@ -272,7 +306,7 @@ object ApplicationManager {
         intent.addCategory(Intent.CATEGORY_DEFAULT)
         val uri: Uri
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(context, "${context.packageName}.fileProvider", file)
+            uri = FileProviderHelper.getUriForFile(context, file)
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         } else {
             uri = Uri.fromFile(file)
@@ -294,4 +328,54 @@ object ApplicationManager {
     fun openApp(context: Context, packageName: String, bundle: Bundle? = null) {
         AppUtil.startApplication(context, packageName, bundle, true)
     }
+
+    // ------------------------------------------
+
+    fun addAppObserver(observer: AppChangeListener) {
+        synchronized(appObserver) {
+            appObserver.add(observer)
+        }
+    }
+
+    fun removeAppObserver(observer: AppChangeListener) {
+        synchronized(appObserver) {
+            appObserver.remove(observer)
+        }
+    }
+
+    override fun afterAppAdded(packageName: String) {
+        ZLog.i(ZTag.TAG, "添加应用 : $packageName")
+        initAppShortcut(packageName)
+        synchronized(appObserver) {
+            appObserver.forEach {
+                it.afterAppAdded(packageName)
+            }
+        }
+    }
+
+    override fun afterAppReplaced(packageName: String) {
+        ZLog.i(ZTag.TAG, "替换应用 : $packageName")
+        initAppShortcut(packageName)
+        synchronized(appObserver) {
+            appObserver.forEach {
+                it.afterAppReplaced(packageName)
+            }
+        }
+    }
+
+    override fun afterAppRemoved(packageName: String) {
+        ZLog.i(ZTag.TAG, "卸载成功$packageName")
+        clearCache(packageName)
+        synchronized(appObserver) {
+            appObserver.forEach {
+                it.afterAppRemoved(packageName)
+            }
+        }
+    }
+}
+
+interface AppChangeListener {
+    fun afterAppAdded(packageName: String)
+    fun afterAppReplaced(packageName: String)
+    fun afterAppRemoved(packageName: String)
 }

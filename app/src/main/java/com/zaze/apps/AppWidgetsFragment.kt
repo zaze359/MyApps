@@ -8,14 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppWidgetsBinding
+import com.zaze.apps.ext.initToolbar
+import com.zaze.apps.ext.setupActionBar
 import com.zaze.apps.viewmodels.AppWidgetsViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -24,11 +28,10 @@ import kotlinx.coroutines.launch
  * @version : 2021-08-04 - 09:24
  */
 class AppWidgetsFragment : AbsFragment() {
-    private lateinit var dataBinding: FragmentAppWidgetsBinding
+    private var _binding: FragmentAppWidgetsBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: AppWidgetsViewModel by viewModels()
-    private var appWidgetsJob: Job? = null
-    private var bindWidgetJob: Job? = null
-    private var startWidgetConfigJob: Job? = null
 
     companion object {
         private const val REQUEST_CREATE_APPWIDGET = 5
@@ -36,7 +39,15 @@ class AppWidgetsFragment : AbsFragment() {
 
     private val bindAppwidgetRequest =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            ZLog.i(ZTag.TAG, "bindAppwidgetRequest: ${it.resultCode}, ${it.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)}")
+            ZLog.i(
+                ZTag.TAG,
+                "bindAppwidgetRequest: ${it.resultCode}, ${
+                    it.data?.getIntExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        -1
+                    )
+                }"
+            )
             lifecycleScope.launch {
                 if (it.resultCode == Activity.RESULT_OK) {
                     viewModel.addAppWidget()
@@ -51,35 +62,44 @@ class AppWidgetsFragment : AbsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        dataBinding = FragmentAppWidgetsBinding.inflate(inflater, container, false)
-        return dataBinding.root
+        _binding = FragmentAppWidgetsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        appWidgetsJob?.cancel()
-        appWidgetsJob = lifecycleScope.launch {
-            viewModel.appWidgets.collect { appWidgets ->
-                dataBinding.appWidgetsLayout.removeAllViews()
-                appWidgets.forEach {
-                    dataBinding.appWidgetsLayout.addView(it)
+        setupActionBar(binding.appBarLayout.toolbar) {
+            title = getString(R.string.app_widgets)
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.appWidgets.collectLatest { appWidgets ->
+                    binding.appWidgetsLayout.removeAllViews()
+                    appWidgets.filter { it.parent == null }.forEach {
+                        binding.appWidgetsLayout.addView(it)
+                    }
                 }
             }
         }
-
-        bindWidgetJob?.cancel()
-        bindWidgetJob = lifecycleScope.launch {
-            for (bind in viewModel.bindWidgetAction) {
-                bind.startBindFlow(bindAppwidgetRequest)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                for (bind in viewModel.bindWidgetAction) {
+                    bind.startBindFlow(bindAppwidgetRequest)
+                }
             }
         }
-
-        startWidgetConfigJob?.cancel()
-        startWidgetConfigJob = lifecycleScope.launch {
-            for (loader in viewModel.startWidgetConfigAction) {
-                loader.startConfigActivity(requireActivity(), REQUEST_CREATE_APPWIDGET)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                for (loader in viewModel.startWidgetConfigAction) {
+                    loader.startConfigActivity(requireActivity(), REQUEST_CREATE_APPWIDGET)
+                }
             }
         }
-//        viewModel.preloadAppWidgets()
+        viewModel.preloadAppWidgets()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

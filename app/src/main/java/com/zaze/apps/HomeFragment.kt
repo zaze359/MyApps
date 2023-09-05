@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.zaze.apps.applist.AppListFragment
 import com.zaze.apps.base.AbsSlidingPanelFragment
 import com.zaze.apps.databinding.FragmentHomeBinding
 import com.zaze.apps.ext.transact

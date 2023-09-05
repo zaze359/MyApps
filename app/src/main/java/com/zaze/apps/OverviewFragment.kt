@@ -2,11 +2,17 @@ package com.zaze.apps
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentOverviewBinding
@@ -17,7 +23,6 @@ import com.zaze.apps.viewmodels.OverviewViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -25,7 +30,7 @@ import kotlinx.coroutines.launch
  * @author : zaze
  * @version : 2021-07-21 - 16:14
  */
-class OverviewFragment : AbsFragment() {
+class OverviewFragment : AbsFragment(), MenuProvider {
     private lateinit var binding: FragmentOverviewBinding
     private val viewModel: OverviewViewModel by viewModels()
     private val appUsagePermissionLauncher =
@@ -49,7 +54,11 @@ class OverviewFragment : AbsFragment() {
         super.onViewCreated(view, savedInstanceState)
         setupActionBar(binding.toolbar)
 
-        viewModel.showAppsAction.observe(viewLifecycleOwner) {}
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
+
+        viewModel.showAppsAction.observe(viewLifecycleOwner) {
+
+        }
         viewModel.requestAppUsagePermissionAction.observe(viewLifecycleOwner) {
             AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
         }
@@ -57,12 +66,23 @@ class OverviewFragment : AbsFragment() {
             startActivity(it)
         }
         binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        lifecycleScope.launchWhenResumed {
-            viewModel.loadOverview().collect {
-                binding.overviewRecyclerView.adapter = CardsAdapter().apply {
-                    setDataList(it, false)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.loadOverview().collect {
+                    binding.overviewRecyclerView.adapter = CardsAdapter().apply {
+                        setDataList(it, false)
+                    }
                 }
             }
         }
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return true
     }
 }

@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
  * @author : zaze
  * @version : 1.0
  */
-abstract class BaseRecyclerAdapter<V : Any, H : RecyclerView.ViewHolder> : ListAdapter<V, H> {
+abstract class AbsRecyclerAdapter<V : Any, VH : RecyclerView.ViewHolder> : ListAdapter<V, VH> {
+
     constructor(diffCallback: DiffUtil.ItemCallback<V>? = null) : super(diffCallback ?: object :
         DiffUtil.ItemCallback<V>() {
         // 对象是否相同
@@ -28,16 +29,19 @@ abstract class BaseRecyclerAdapter<V : Any, H : RecyclerView.ViewHolder> : ListA
 
     constructor(config: AsyncDifferConfig<V>) : super(config)
 
-    @Deprecated("use submitList()", ReplaceWith("submitList(list)"))
-    open fun setDataList(list: List<V>?, isNotify: Boolean = true) {
-        submitList(list)
-    }
-
-    override fun onBindViewHolder(holder: H, position: Int) {
-        getItem(position)?.let {
-            onBindView(holder, it, position)
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        val v: V? = getItem(position)
+        if (v != null) {
+            onBindView(holder, v, position)
         }
     }
 
-    abstract fun onBindView(holder: H, value: V, position: Int)
+    /**
+     * view赋值
+     *
+     * @param holder   holder
+     * @param value    value
+     * @param position position
+     */
+    abstract fun onBindView(holder: VH, value: V, position: Int)
 }

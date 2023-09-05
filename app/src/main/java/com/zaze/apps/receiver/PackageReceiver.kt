@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import com.zaze.apps.utils.ApplicationManager
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 
@@ -36,26 +37,14 @@ class PackageReceiver : BroadcastReceiver() {
         // --------------------------------------------------
         when (action) {
             Intent.ACTION_PACKAGE_ADDED -> {
-                afterAppAdded(packageName)
+                ApplicationManager.afterAppAdded(packageName)
             }
             Intent.ACTION_PACKAGE_REPLACED -> {
-                afterAppReplaced(packageName)
+                ApplicationManager.afterAppReplaced(packageName)
             }
             Intent.ACTION_PACKAGE_REMOVED -> {
-                afterAppRemoved(packageName)
+                ApplicationManager.afterAppRemoved(packageName)
             }
         }
-    }
-
-    private fun afterAppAdded(packageName: String) {
-        ZLog.i(TAG, "添加应用 : $packageName")
-    }
-
-    private fun afterAppReplaced(packageName: String) {
-        ZLog.i(TAG, "替换应用 : $packageName")
-    }
-
-    private fun afterAppRemoved(packageName: String) {
-        ZLog.i(TAG, "卸载成功$packageName")
     }
 }

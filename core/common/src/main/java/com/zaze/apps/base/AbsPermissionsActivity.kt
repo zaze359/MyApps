@@ -16,31 +16,7 @@ import kotlinx.coroutines.launch
  */
 abstract class AbsPermissionsActivity : AbsThemeActivity() {
 
-//    private val permissionHandler by lazy {
-//        PermissionHandler(
-//            activity = this,
-//            permissions = getPermissionsToRequest(),
-//            afterPermissionGranted = ::afterPermissionGranted,
-//            onSomePermanentlyDenied = ::onSomePermanentlyDenied,
-//            onPermissionDenied = ::onPermissionDenied
-//        )
-//    }
-
-    private val permissionRequest = PermissionRequest(this)
-
-//    private val permissionsRequest =
-//        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-//            permissionHandler.onActivityResult(it)
-//        }
-//
-//    private val startSettingRequest =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-//            if (hasPermissions()) {
-//                afterPermissionGranted()
-//            } else {
-//                setupPermission()
-//            }
-//        }
+    val permissionRequest = PermissionRequest(this)
 
     open fun getPermissionsToRequest(): Array<String> {
         return arrayOf()
@@ -51,21 +27,18 @@ abstract class AbsPermissionsActivity : AbsThemeActivity() {
         setupPermission()
     }
 
-    fun hasPermissions(): Boolean {
-        return permissionRequest.hasPermissions()
-    }
-
-    open fun setupPermission() {
+    fun setupPermission() {
+        val permissions = getPermissionsToRequest()
+        if (permissions.isEmpty()) {
+            return
+        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                if (hasPermissions()) {
-                    afterPermissionGranted()
-                } else {
+                permissionRequest.beforePermissionGranted {
                     beforePermissionGranted()
-                    permissionRequest.onPermissionGranted {
-                        afterPermissionGranted()
-                    }.request(getPermissionsToRequest())
-                }
+                }.onPermissionGranted {
+                    afterPermissionGranted()
+                }.request(getPermissionsToRequest())
             }
         }
     }
@@ -82,9 +55,5 @@ abstract class AbsPermissionsActivity : AbsThemeActivity() {
      */
     open fun beforePermissionGranted() {
         ZLog.i(ZTag.TAG, "beforePermissionGranted")
-    }
-
-    open fun onPermissionDenied() {
-        setupPermission()
     }
 }

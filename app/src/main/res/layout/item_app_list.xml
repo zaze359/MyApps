@@ -11,6 +11,7 @@
         android:id="@+id/app_icon_iv"
         android:layout_width="@dimen/app_icon_size"
         android:layout_height="@dimen/app_icon_size"
+        android:background="@color/white"
         android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:scaleType="centerCrop"
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
         android:textAppearance="@style/TextAppearanceSubtitle1"
-        app:layout_constraintBottom_toTopOf="@+id/app_version_name_tv"
+        app:layout_constraintBottom_toTopOf="@+id/app_desc_tv"
         app:layout_constraintEnd_toStartOf="@+id/menu_iv"
         app:layout_constraintStart_toEndOf="@id/app_icon_iv"
         app:layout_constraintTop_toTopOf="@id/app_icon_iv"
@@ -43,7 +44,7 @@
         tools:text="demo" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/app_version_name_tv"
+        android:id="@+id/app_desc_tv"
         style="@style/TextSize.Small"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

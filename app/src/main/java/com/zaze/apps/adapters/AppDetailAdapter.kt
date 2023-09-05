@@ -2,17 +2,34 @@ package com.zaze.apps.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.BaseRecyclerAdapter
+import com.zaze.apps.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.AppDetailItem
 import com.zaze.apps.databinding.ItemAppDetailBinding
+import com.zaze.apps.feature.settings.model.SettingsItem
 
 /**
  * Description :
  * @author : zaze
  * @version : 2021-10-26 - 13:22
  */
-class AppDetailAdapter : BaseRecyclerAdapter<AppDetailItem, AppDetailAdapter.AppDetailHolder>() {
+class AppDetailAdapter :
+    AbsRecyclerAdapter<AppDetailItem, AppDetailAdapter.AppDetailHolder>(diffCallback) {
+    companion object {
+        private val diffCallback = object : DiffUtil.ItemCallback<AppDetailItem>() {
+            override fun areItemsTheSame(oldItem: AppDetailItem, newItem: AppDetailItem): Boolean {
+                return oldItem.key == newItem.key
+            }
+
+            override fun areContentsTheSame(
+                oldItem: AppDetailItem,
+                newItem: AppDetailItem
+            ): Boolean {
+                return oldItem.toString() == newItem.toString()
+            }
+        }
+    }
 
     override fun onBindView(holder: AppDetailHolder, value: AppDetailItem, position: Int) {
         holder.binding.appDetailTagTv.text = value.key

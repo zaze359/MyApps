@@ -7,13 +7,13 @@ import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.BaseRecyclerAdapter
+import com.zaze.apps.base.adapter.AbsRecyclerAdapter
 
 abstract class AbsMultiSelectAdapter<V : Any, H : RecyclerView.ViewHolder> :
-    BaseRecyclerAdapter<V, H>, ActionMode.Callback {
+    AbsRecyclerAdapter<V, H>, ActionMode.Callback {
     private var menuRes: Int
 
-    constructor(diffCallback: DiffUtil.ItemCallback<V>?, @MenuRes menuRes: Int) : super(
+    constructor(diffCallback: DiffUtil.ItemCallback<V>, @MenuRes menuRes: Int) : super(
         diffCallback
     ) {
         this.menuRes = menuRes

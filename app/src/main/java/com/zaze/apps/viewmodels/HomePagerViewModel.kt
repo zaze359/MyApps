@@ -1,7 +1,7 @@
 package com.zaze.apps.viewmodels
 
 import android.app.Application
-import com.zaze.apps.AppListFragment
+import com.zaze.apps.applist.AppListFragment
 import com.zaze.apps.AppWidgetsFragment
 import com.zaze.apps.OverviewFragment
 import com.zaze.apps.R

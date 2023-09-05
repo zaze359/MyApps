@@ -44,8 +44,8 @@ abstract class AbsThemeActivity : AbsLogActivity() {
         updateTheme()
         setImmersiveSurface(isFullScreen())
         val isLight = surfaceColor().isColorLight
-        setLightStatusBar(isLight)
         setLightNavigationBar(isLight)
+        setLightStatusBar(isLight)
     }
 
     private fun updateTheme() = runBlocking {

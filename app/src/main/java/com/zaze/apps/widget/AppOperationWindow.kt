@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.HomePagerFragmentDirections
 import com.zaze.apps.R
-import com.zaze.apps.base.adapter.BaseRecyclerAdapter
+import com.zaze.apps.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.OperationBean
 import com.zaze.apps.databinding.AppOperationLayoutBinding
 import com.zaze.apps.databinding.ItemAppOperationBinding
@@ -162,7 +162,7 @@ class AppOperationWindow(private val context: Context, private val app: AppShort
         )
 
         binding.appOperationRecyclerView.adapter = AppOperationAdapter().apply {
-            setDataList(operations, false)
+            submitList(operations)
         }
 
         if (!enable) {
@@ -238,7 +238,7 @@ class AppOperationWindow(private val context: Context, private val app: AppShort
     private fun archiveApp() {
         val path =
             "${context.getExternalFilesDir(null)}/apks/${app.appName}_${app.versionName}.apk"
-        val sourceDir = app.sourceDir
+        val sourceDir = app.applicationInfo?.sourceDir
         if (sourceDir.isNullOrEmpty()) {
             ToastUtil.toast(context, "提取失败, 未找到${app.appName}的apk文件")
             return
@@ -250,7 +250,7 @@ class AppOperationWindow(private val context: Context, private val app: AppShort
 
     // --------------------------------------------------
     private class AppOperationAdapter :
-        BaseRecyclerAdapter<OperationBean, AppOperationAdapter.AppOperationHolder>() {
+        AbsRecyclerAdapter<OperationBean, AppOperationAdapter.AppOperationHolder>() {
 
         override fun onBindView(holder: AppOperationHolder, value: OperationBean, position: Int) {
             holder.binding.appOperationTv.apply {

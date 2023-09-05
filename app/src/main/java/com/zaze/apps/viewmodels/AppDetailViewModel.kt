@@ -1,21 +1,29 @@
 package com.zaze.apps.viewmodels
 
+import android.app.Application
 import android.appwidget.AppWidgetHostView
+import android.content.ContextWrapper
 import android.os.Build
+import android.os.Environment
 import androidx.lifecycle.viewModelScope
 import com.zaze.apps.App
 import com.zaze.apps.appwidgets.*
 import com.zaze.apps.appwidgets.compat.AppWidgetManagerCompat
+import com.zaze.apps.base.AbsAndroidViewModel
 import com.zaze.apps.base.AbsViewModel
 import com.zaze.apps.base.BaseApplication
 import com.zaze.apps.data.AppDetailItem
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.ApplicationManager
+import com.zaze.utils.FileUtil
 import com.zaze.utils.date.DateUtil
+import com.zaze.utils.ext.debuggable
+import com.zaze.utils.ext.isAAB
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -24,8 +32,8 @@ import kotlin.collections.ArrayList
  * @author : zaze
  * @version : 2021-10-21 - 15:57
  */
-class AppDetailViewModel : AbsViewModel() {
-
+class AppDetailViewModel(application: Application) : AbsAndroidViewModel(application) {
+    private val datePattern = "yyyy年MM月dd日 HH:mm"
     private val _appShortcut = MutableStateFlow<AppShortcut?>(null)
     val appShortcut: Flow<AppShortcut?> = _appShortcut
 
@@ -58,24 +66,29 @@ class AppDetailViewModel : AbsViewModel() {
             _appShortcut.value = app
             // --------------------------------------------------
             val appDetailItems = ArrayList<AppDetailItem>()
-            val appDirs = ArrayList<AppDetailItem>()
             // --------------------------------------------------
             appDetailItems.add(AppDetailItem("包名", app.packageName))
-            appDetailItems.add(AppDetailItem("版本号", app.versionCode.toString()))
+            appDetailItems.add(AppDetailItem("版本", "${app.versionName} (${app.versionCode})"))
+            appDetailItems.add(
+                AppDetailItem(
+                    "安装来源",
+                    ApplicationManager.getAppNameHasDefault(app.installerPackageName, "未知")
+                )
+            )
             appDetailItems.add(
                 AppDetailItem(
                     "安装时间",
-                    DateUtil.timeMillisToString(app.firstInstallTime, "yyyy-MM-dd HH:mm:ss")
+                    DateUtil.timeMillisToString(app.firstInstallTime, datePattern)
                 )
             )
             appDetailItems.add(
                 AppDetailItem(
                     "最近更新",
-                    DateUtil.timeMillisToString(app.lastUpdateTime, "yyyy-MM-dd HH:mm:ss")
+                    DateUtil.timeMillisToString(app.lastUpdateTime, datePattern)
                 )
             )
             appDetailItems.add(AppDetailItem("UID", app.uid.toString()))
-            app.getApplicationInfo(App.getInstance())?.let {
+            app.applicationInfo?.let {
                 appDetailItems.add(
                     AppDetailItem("目标 SDK", it.targetSdkVersion.toString())
                 )
@@ -84,16 +97,41 @@ class AppDetailViewModel : AbsViewModel() {
                         AppDetailItem("最低 SDK", it.minSdkVersion.toString())
                     )
                 }
-                // --------------------------------------------------
-                appDirs.add(AppDetailItem("APK路径", it.sourceDir))
-                appDirs.add(AppDetailItem("Data", it.dataDir))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    appDirs.add(AppDetailItem("ProtectedData", it.deviceProtectedDataDir))
+                if (it.debuggable) {
+                    appDetailItems.add(AppDetailItem("调试模式", "是"))
                 }
+                appDetailItems.add(
+                    AppDetailItem(
+                        "安装程序类型",
+                        if (it.isAAB) "Android App Bundle(拆分式APK)" else "APK"
+                    )
+                )
             }
-            _appDirs.value = appDirs
             _appDetailItems.value = appDetailItems
+            loadAppDirs(app)
         }
+    }
+
+    private fun loadAppDirs(app: AppShortcut) {
+        val appDirs = ArrayList<AppDetailItem>()
+        app.applicationInfo?.let {
+            appDirs.add(AppDetailItem("源", File(it.sourceDir).parent))
+            appDirs.add(AppDetailItem("数据", it.dataDir))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                appDirs.add(AppDetailItem("受保护数据", it.deviceProtectedDataDir))
+            }
+            val externalStorageDirectory =
+                "${Environment.getExternalStorageDirectory().absolutePath}/Android/data/${it.packageName}"
+            appDirs.add(
+                AppDetailItem(
+                    "外部数据",
+                    if (FileUtil.exists(externalStorageDirectory)) externalStorageDirectory else "无"
+                )
+            )
+            appDirs.add(AppDetailItem("本地库", it.nativeLibraryDir ?: "无"))
+
+        }
+        _appDirs.value = appDirs
     }
 
     fun preloadAppWidgets(packageName: String) {
@@ -103,25 +141,22 @@ class AppDetailViewModel : AbsViewModel() {
             val appWidgets = ArrayList<AppWidgetHostView>()
             val context = BaseApplication.getInstance()
             val appWidgetManager = AppWidgetManagerCompat.getInstance(context)
-            appWidgetManager.getAllProviders(null)
-                .filter {
-                    it.provider.packageName == packageName
-                }
-                .forEach { pInfo ->
-                    val loader = WidgetHostViewLoader(
-                        appWidgetHost,
-                        PendingAddWidgetInfo(
-                            LauncherAppWidgetProviderInfo.fromProviderInfo(pInfo)
-                        )
+            appWidgetManager.getAllProviders(null).filter {
+                it.provider.packageName == packageName
+            }.forEach { pInfo ->
+                val loader = WidgetHostViewLoader(
+                    appWidgetHost, PendingAddWidgetInfo(
+                        LauncherAppWidgetProviderInfo.fromProviderInfo(pInfo)
                     )
-                    if (loader.bindWidget()) {
-                        loader.inflaterWidget()?.let {
-                            appWidgets.add(it)
-                        }
-                    } else {
-                        waitingLoaders.add(loader)
+                )
+                if (loader.bindWidget()) {
+                    loader.inflaterWidget()?.let {
+                        appWidgets.add(it)
                     }
+                } else {
+                    waitingLoaders.add(loader)
                 }
+            }
             bindWidget()
             _appWidgets.emit(appWidgets)
         }
@@ -154,4 +189,23 @@ class AppDetailViewModel : AbsViewModel() {
             bindWidget()
         }
     }
+}
+
+private data class AppDetailViewModelState(
+    val appShortcut: AppShortcut,
+    val appDirs: List<AppDetailItem>
+) {
+    fun toUiState(): AppDetailUiState {
+        return AppDetailUiState.App(
+            name = appShortcut.appName ?: "未知",
+            versionName = appShortcut.versionName ?: "未知"
+        )
+    }
+}
+
+sealed class AppDetailUiState {
+    data class App(
+        val name: String, val versionName: String,
+
+        ) : AppDetailUiState()
 }

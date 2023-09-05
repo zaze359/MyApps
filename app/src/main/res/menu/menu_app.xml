@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_startup"
+        android:icon="@drawable/ic_open_in_new"
+        android:title="@string/action_startup" />
+    <item
+        android:id="@+id/action_uninstall"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/action_uninstall" />
+    <item
+        android:id="@+id/action_detail"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_detail" />
+    <item
+        android:id="@+id/action_backup"
+        android:icon="@drawable/ic_archive"
+        android:title="@string/action_backup" />
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/action_share" />
+</menu>

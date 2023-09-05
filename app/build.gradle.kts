@@ -47,11 +47,12 @@ android {
 
 }
 
-//configurations.all {
-//    // check for updates every build
-//    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-//    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-//}
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor(1, "seconds")
+    resolutionStrategy.cacheDynamicVersionsFor(1, "seconds")
+}
+
 
 dependencies {
     testImplementation(project(":core:testing"))

@@ -6,7 +6,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.App
 import com.zaze.apps.OverviewFragmentDirections
-import com.zaze.apps.base.adapter.BaseRecyclerAdapter
+import com.zaze.apps.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.databinding.ItemLatelyUpdateAppBinding
 import com.zaze.apps.ext.onClick
 import com.zaze.apps.utils.AppShortcut
@@ -16,8 +16,7 @@ import com.zaze.utils.date.DateUtil
  * 最近更新应用信息
  */
 class LatelyUpdateAdapter :
-    BaseRecyclerAdapter<AppShortcut, LatelyUpdateAdapter.LatelyUpdateHolder>() {
-
+    AbsRecyclerAdapter<AppShortcut, LatelyUpdateAdapter.LatelyUpdateHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LatelyUpdateHolder {
         return LatelyUpdateHolder(
             ItemLatelyUpdateAppBinding.inflate(

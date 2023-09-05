@@ -11,10 +11,11 @@ import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.utils.ApplicationManager
 import com.zaze.core.common.utils.SingleLiveEvent
 import com.zaze.utils.DescriptionUtil
-import com.zaze.utils.StorageLoader
 import com.zaze.utils.TraceHelper
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
+import com.zaze.utils.storage.StorageInfo
+import com.zaze.utils.storage.StorageLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -83,7 +84,7 @@ class OverviewViewModel : AbsViewModel() {
                 )
             )
             // --------------------------------------------------
-            val unit = StorageLoader.StorageInfo.UNIT * StorageLoader.StorageInfo.UNIT
+            val unit = StorageInfo.UNIT * StorageInfo.UNIT
             val storageInfo = StorageLoader.loadStorageStats(App.getInstance())
             val usedSpace = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
             val appsSpace = 0

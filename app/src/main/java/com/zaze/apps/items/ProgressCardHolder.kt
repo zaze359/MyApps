@@ -37,7 +37,7 @@ class ProgressCardHolder(private val binding: ItemCardProgressBinding) :
         } else {
             binding.progressRecyclerView.layoutManager = LinearLayoutManager(binding.root.context)
             binding.progressRecyclerView.adapter = ProgressSubAdapter().apply {
-                setDataList(value.subProgresses, false)
+                submitList(value.subProgresses)
             }
         }
     }

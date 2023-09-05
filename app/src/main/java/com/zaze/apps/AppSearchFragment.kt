@@ -13,19 +13,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import androidx.transition.TransitionManager
-import com.zaze.apps.adapters.AppListAdapter
+import com.zaze.apps.applist.AppListAdapter
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppSearchBinding
 import com.zaze.apps.ext.gone
 import com.zaze.apps.ext.initToolbar
 import com.zaze.apps.ext.visible
-import com.zaze.apps.viewmodels.AppListViewModel
-import com.zaze.apps.viewmodels.AppUiState
+import com.zaze.apps.applist.AppListViewModel
+import com.zaze.apps.applist.AppUiState
 import com.zaze.core.ext.focusAndShowKeyboard
 import com.zaze.core.ext.hideKeyboard
-import com.zaze.utils.log.ZLog
-import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

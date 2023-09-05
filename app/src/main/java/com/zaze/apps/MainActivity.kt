@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.navigation.ui.setupWithNavController
 import com.zaze.apps.appwidgets.WidgetHostViewLoader
-import com.zaze.apps.base.AbsSlidingPanelActivity
+import com.zaze.apps.base.AbsActivity
 import com.zaze.apps.databinding.ActivityMainBinding
 import com.zaze.apps.ext.gone
 import com.zaze.apps.ext.visible
@@ -15,12 +15,12 @@ import com.zaze.utils.log.ZTag
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AbsSlidingPanelActivity() {
-
+class MainActivity : AbsActivity() {
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(wrapSlidingMusicPanel(binding.root))
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupNavigationController()
     }
 
@@ -28,8 +28,8 @@ class MainActivity : AbsSlidingPanelActivity() {
         val navController = findNavController(R.id.fragment_container)
 //        myNavController = navController
 //        setupActionBarWithNavController(navController, AppBarConfiguration(navController.graph))
-        bottomNavigationView.setupWithNavController(navController)
-        bottomNavigationView.setOnItemReselectedListener {
+        binding.bottomNav.setupWithNavController(navController)
+        binding.bottomNav.setOnItemReselectedListener {
             currentNavFragment(R.id.fragment_container).apply {
                 // scrollToTop()
             }
@@ -39,15 +39,15 @@ class MainActivity : AbsSlidingPanelActivity() {
 //            if (destination.id == navGraph.startDestinationId) {
 //                currentNavFragment(R.id.fragment_container)?.enterTransition = null
 //            }
-            when (destination.id) {
-                R.id.home_fragment, R.id.app_list_fragment, R.id.overview_fragment -> {
-                    bottomNavigationView.visible()
-                }
-
-                else -> {
-                    bottomNavigationView.gone()
-                }
-            }
+//            when (destination.id) {
+//                R.id.home_fragment, R.id.app_list_fragment, R.id.overview_fragment -> {
+//                    binding.bottomNav.visible()
+//                }
+//
+//                else -> {
+//                    binding.bottomNav.gone()
+//                }
+//            }
 
 //            binding.toolbar.setNavigationIcon(R.drawable.icon_return)
 //            if(controller.currentDestination?.id == controller.graph.startDestinationId) {

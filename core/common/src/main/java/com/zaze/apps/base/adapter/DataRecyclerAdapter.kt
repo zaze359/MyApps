@@ -11,12 +11,21 @@ import java.util.*
  * @version : 1.0
  */
 @Deprecated("")
-abstract class DataRecyclerAdapter<V, H : RecyclerView.ViewHolder> : RecyclerView.Adapter<H>() {
+abstract class DataRecyclerAdapter<V, H : RecyclerView.ViewHolder>(list: Collection<V>? = null) :
+    RecyclerView.Adapter<H>() {
     private val dataList: MutableList<V> = ArrayList()
 
-    open fun setDataList(list: Collection<V>?, isNotify: Boolean = true) {
+    init {
+        setDataList(list, false)
+    }
+
+    open fun setDataList(list: Collection<V>?) {
+        setDataList(list, true)
+    }
+
+    open fun setDataList(list: Collection<V>?, isNotify: Boolean) {
         dataList.clear()
-        if (list != null && list.isNotEmpty()) {
+        if (!list.isNullOrEmpty()) {
             dataList.addAll(list)
         }
         if (isNotify) {
