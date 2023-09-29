@@ -1,4 +1,4 @@
-package com.zaze.apps.widget.loading
+package com.zaze.core.common.widget.loading
 
 import android.app.Dialog
 import android.content.Context

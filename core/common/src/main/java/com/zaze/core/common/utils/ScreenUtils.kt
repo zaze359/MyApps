@@ -45,4 +45,15 @@ object ScreenUtils {
         wm.defaultDisplay.getMetrics(outMetrics)
         return outMetrics.widthPixels
     }
+
+    /**
+     * 是否在屏幕左侧
+     *
+     * @param mContext 上下文
+     * @param xPos     位置的x坐标值
+     * @return true：是。
+     */
+    fun isInLeft(mContext: Context, xPos: Int): Boolean {
+        return xPos < getScreenWidth(mContext) / 2
+    }
 }

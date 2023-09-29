@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.zaze.apps.ext.FragmentExtKt;
 
-public abstract class AbsViewModelFragment extends AbsPermissionFragment {
+public abstract class AbsViewModelFragment extends AbsLogFragment {
     public AbsViewModelFragment() {
     }
 

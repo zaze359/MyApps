@@ -5,7 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.AppFilter
+import com.zaze.apps.data.AppSort
 import com.zaze.apps.databinding.ItemAppFilterBinding
+import com.zaze.apps.utils.AppShortcut
 
 
 class AppFilterAdapter(private val onItemClick: (AppFilter) -> Unit) :
@@ -15,14 +17,22 @@ class AppFilterAdapter(private val onItemClick: (AppFilter) -> Unit) :
         holder.binding.filterBtn.apply {
             text = value.name
             setOnClickListener {
-                val pre = curPosition
-                curPosition = position
-                notifyItemChanged(pre)
-                notifyItemChanged(position)
+                updateItem(position)
                 onItemClick.invoke(value)
             }
         }
         holder.binding.filterBtn.isEnabled = curPosition != position
+    }
+
+    fun submitList(list: List<AppFilter>, appFilter: AppFilter) {
+        super.submitList(list)
+        updateItem(list.indexOf(appFilter))
+    }
+    private fun updateItem(position: Int) {
+        val pre = curPosition
+        curPosition = position
+        notifyItemChanged(pre)
+        notifyItemChanged(position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilterHolder {

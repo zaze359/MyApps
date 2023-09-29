@@ -1,10 +1,10 @@
 package com.zaze.apps.items
 
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import com.zaze.apps.data.Card
 import com.zaze.apps.databinding.ItemCardOverviewBinding
-import com.zaze.apps.ext.gone
 import com.zaze.apps.ext.onClick
-import com.zaze.apps.ext.visible
 
 /**
  * Description :
@@ -19,13 +19,13 @@ class OverviewCardHolder(private val binding: ItemCardOverviewBinding) :
         binding.overviewTitleTv.text = value.title
         binding.overviewContentTv.text = value.content
         if (value.actionName.isNullOrEmpty()) {
-            binding.overviewBtn.gone()
+            binding.overviewBtn.isGone = true
             itemView.onClick {
                 value.doAction?.invoke()
             }
         } else {
             binding.overviewBtn.let {
-                it.visible()
+                it.isVisible = true
                 it.text = value.actionName
                 it.setOnClickListener {
                     value.doAction?.invoke()

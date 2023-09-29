@@ -28,7 +28,6 @@ import java.util.*
  * @version : 2017-12-22 - 17:26
  */
 data class AppShortcut(
-
     val appName: String? = null,
     val packageName: String = "",
     val versionCode: Long = 0,
@@ -55,11 +54,9 @@ data class AppShortcut(
     @Transient
     @Expose(serialize = false, deserialize = false)
     private var appIcon: Bitmap? = null
-
     fun updateAppIcon(bitmap: Bitmap) {
         appIcon = bitmap
     }
-
     fun getAppIcon(context: Context? = null): Bitmap? {
         if (appIcon == null && context != null) {
             // 默认不赋值，每次都从ApplicationManager缓存中获取
@@ -108,6 +105,7 @@ data class AppShortcut(
             return AppShortcut(packageName = packageName)
         }
 
+        @Suppress("DEPRECATION")
         @JvmStatic
         fun create(context: Context, packageInfo: PackageInfo): AppShortcut {
             val applicationInfo = packageInfo.applicationInfo

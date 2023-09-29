@@ -62,7 +62,7 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
 
     fun loadAppDetail(packageName: String) {
         viewModelScope.launch(Dispatchers.Default) {
-            val app = ApplicationManager.getAppShortcut(packageName)
+            val app = ApplicationManager.getAppShortcut(application, packageName)
             _appShortcut.value = app
             // --------------------------------------------------
             val appDetailItems = ArrayList<AppDetailItem>()
@@ -72,7 +72,11 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
             appDetailItems.add(
                 AppDetailItem(
                     "安装来源",
-                    ApplicationManager.getAppNameHasDefault(app.installerPackageName, "未知")
+                    ApplicationManager.getAppNameHasDefault(
+                        application,
+                        app.installerPackageName,
+                        "未知"
+                    )
                 )
             )
             appDetailItems.add(

@@ -7,8 +7,8 @@ import android.view.View
 import androidx.annotation.ArrayRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
-import com.zaze.apps.widget.loading.LoadingDialog
-import com.zaze.apps.widget.loading.LoadingView
+import com.zaze.core.common.widget.loading.LoadingDialog
+import com.zaze.core.common.widget.loading.LoadingView
 import com.zaze.core.common.R
 import com.zaze.core.designsystem.skin.SkinLayoutInflaterFactory
 import com.zaze.utils.ToastUtil
@@ -19,12 +19,17 @@ import com.zaze.utils.ToastUtil
  * @author : ZAZE
  * @version : 2018-11-30 - 15:48
  */
-abstract class AbsActivity : AbsViewModelActivity() {
+abstract class AbsActivity : AbsThemeActivity() {
 
-    private val loadingDialog by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val loadingLazy = lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         LoadingDialog(this, createLoadingView())
     }
 
+    //    init {
+//        // 设置监听，会在onCreate() 时被调用。
+//        addOnContextAvailableListener {
+//        }
+//    }
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.factory2 =
             SkinLayoutInflaterFactory { parent: View?, name: String?, context: Context, attrs: AttributeSet ->
@@ -40,6 +45,13 @@ abstract class AbsActivity : AbsViewModelActivity() {
     open fun createLoadingView(): LoadingView {
         return LoadingView.createHorizontalLoading(this).apply {
             this.setTextColor(ContextCompat.getColor(context, R.color.white))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (loadingLazy.isInitialized()) {
+            loadingLazy.value.dismiss()
         }
     }
 
@@ -60,9 +72,11 @@ abstract class AbsActivity : AbsViewModelActivity() {
 
     fun progress(message: String? = null) {
         if (message == null) {
-            loadingDialog.dismiss()
+            if(loadingLazy.isInitialized()) {
+                loadingLazy.value.dismiss()
+            }
         } else {
-            loadingDialog.setText(message).show()
+            loadingLazy.value.setText(message).show()
         }
     }
     // --------------------------------------------------

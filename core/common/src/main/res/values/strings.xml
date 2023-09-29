@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="cancel">取消</string>
-    <string name="sure">确定</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_sure">确定</string>
 
     <string name="action_sort_order">排序</string>
     <string name="action_settings">设置</string>

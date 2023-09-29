@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
@@ -16,9 +17,7 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.zaze.apps.applist.AppListAdapter
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppSearchBinding
-import com.zaze.apps.ext.gone
 import com.zaze.apps.ext.initToolbar
-import com.zaze.apps.ext.visible
 import com.zaze.apps.applist.AppListViewModel
 import com.zaze.apps.applist.AppUiState
 import com.zaze.core.ext.focusAndShowKeyboard
@@ -50,9 +49,9 @@ class AppSearchFragment : AbsFragment() {
             doAfterTextChanged {
 //                TransitionManager.beginDelayedTransition(binding.appBarLayout)
                 if (it.isNullOrEmpty()) {
-                    binding.clearIv.gone()
+                    binding.clearIv.isGone = true
                 } else {
-                    binding.clearIv.visible()
+                    binding.clearIv.isVisible = true
                     viewModel.searchApps(it.toString())
                 }
             }

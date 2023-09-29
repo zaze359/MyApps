@@ -1,4 +1,4 @@
-package com.zaze.apps.widget.loading
+package com.zaze.core.common.widget.loading
 
 import android.content.Context
 import android.graphics.drawable.AnimationDrawable

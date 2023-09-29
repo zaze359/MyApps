@@ -1,9 +1,9 @@
-package com.zaze.apps.widget.dialog
+package com.zaze.core.common.widget.dialog
 
 import android.content.Context
+import android.content.DialogInterface
 import androidx.annotation.StyleRes
 import android.view.Gravity
-import android.view.View
 import com.zaze.core.common.R
 
 /**
@@ -15,15 +15,15 @@ class DialogProvider private constructor() {
 
     class Builder {
         @StyleRes
-        internal var theme = R.style.TransparentDialog
+        internal var theme = R.style.MaterialAlertDialogTheme
         internal var cancelable = false
         internal var applicationOverlay = false
         internal var message: CharSequence? = null
         internal var messageGravity: Int = Gravity.CENTER
         internal var positive: String? = null
-        internal var positiveListener: ((v: View) -> Unit)? = null
+        internal var positiveListener: DialogInterface.OnClickListener? = null
         internal var negative: String? = null
-        internal var negativeListener: ((v: View) -> Unit)? = null
+        internal var negativeListener: DialogInterface.OnClickListener? = null
         internal var title: String? = null
         internal var tag: String? = null
 
@@ -50,7 +50,7 @@ class DialogProvider private constructor() {
 
         fun positive(
             positive: String = "确定",
-            positiveListener: ((v: View) -> Unit)? = null
+            positiveListener: DialogInterface.OnClickListener? = null
         ): Builder {
             this.positive = positive
             this.positiveListener = positiveListener
@@ -59,7 +59,7 @@ class DialogProvider private constructor() {
 
         fun negative(
             negative: String = "取消",
-            negativeListener: ((v: View) -> Unit)? = null
+            negativeListener: DialogInterface.OnClickListener? = null
         ): Builder {
             this.negative = negative
             this.negativeListener = negativeListener

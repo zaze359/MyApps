@@ -1,11 +1,10 @@
 package com.zaze.apps.items
 
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.adapters.ProgressSubAdapter
 import com.zaze.apps.data.Card
 import com.zaze.apps.databinding.ItemCardProgressBinding
-import com.zaze.apps.ext.gone
-import com.zaze.apps.ext.invisible
 
 /**
  * Description :
@@ -33,7 +32,7 @@ class ProgressCardHolder(private val binding: ItemCardProgressBinding) :
             value.doAction?.invoke()
         }
         if (value.subProgresses.isNullOrEmpty()) {
-            binding.progressRecyclerView.invisible()
+            binding.progressRecyclerView.isInvisible = true
         } else {
             binding.progressRecyclerView.layoutManager = LinearLayoutManager(binding.root.context)
             binding.progressRecyclerView.adapter = ProgressSubAdapter().apply {

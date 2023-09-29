@@ -9,10 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentOverviewBinding
@@ -31,13 +33,19 @@ import kotlinx.coroutines.launch
  * @version : 2021-07-21 - 16:14
  */
 class OverviewFragment : AbsFragment(), MenuProvider {
-    private lateinit var binding: FragmentOverviewBinding
-    private val viewModel: OverviewViewModel by viewModels()
+    private var _binding: FragmentOverviewBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: OverviewViewModel by activityViewModels()
+
+    private lateinit var cardsAdapter: CardsAdapter
+
     private val appUsagePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             ZLog.i(ZTag.TAG, "result: ${it.resultCode}, ${it.data}")
-            lifecycleScope.launchWhenResumed {
-                viewModel.loadOverview()
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.loadOverview()
+                }
             }
         }
 
@@ -46,18 +54,30 @@ class OverviewFragment : AbsFragment(), MenuProvider {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentOverviewBinding.inflate(inflater, container, false)
+        _binding = FragmentOverviewBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBar(binding.toolbar)
-
         requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
-
+        binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        cardsAdapter = CardsAdapter()
+        binding.overviewRecyclerView.adapter = cardsAdapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect {
+                    ZLog.i(ZTag.TAG, "it.moveToTop:${it.moveToTop}")
+                    cardsAdapter.submitList(it.cards)
+                    if (it.moveToTop) {
+                        binding.overviewRecyclerView.smoothScrollToPosition(0)
+                    }
+                }
+            }
+        }
         viewModel.showAppsAction.observe(viewLifecycleOwner) {
-
+            findNavController().navigate(R.id.app_list_fragment)
         }
         viewModel.requestAppUsagePermissionAction.observe(viewLifecycleOwner) {
             AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
@@ -65,16 +85,7 @@ class OverviewFragment : AbsFragment(), MenuProvider {
         viewModel.settingsAction.observe(viewLifecycleOwner) {
             startActivity(it)
         }
-        binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.loadOverview().collect {
-                    binding.overviewRecyclerView.adapter = CardsAdapter().apply {
-                        setDataList(it, false)
-                    }
-                }
-            }
-        }
+        viewModel.loadOverview()
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -84,5 +95,10 @@ class OverviewFragment : AbsFragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return true
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -9,7 +9,6 @@ import com.zaze.apps.data.AppSort
 import com.zaze.apps.utils.AppChangeListener
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.ApplicationManager
-import com.zaze.utils.FileUtil
 import com.zaze.utils.TraceHelper
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
@@ -39,6 +38,8 @@ class AppListViewModel @Inject constructor(application: Application) :
     }
 
     // --------------------------------------------------
+    private var allApps: List<AppShortcut> = emptyList()
+
     /** 过滤条件 */
     private var filterCondition: AppFilter = AppFilter.ALL
 
@@ -57,7 +58,8 @@ class AppListViewModel @Inject constructor(application: Application) :
     val jsonExtractFile = "$baseDir/jsonExtract.xml"
 
     // --------------------------------------------------
-    fun loadData(appFilter: AppFilter = AppFilter.ALL) {
+    fun loadData(appFilter: AppFilter = filterCondition) {
+        ZLog.i(ZTag.TAG, "loadData appFilter: $appFilter")
         filterCondition = appFilter
         viewModelScope.launch(Dispatchers.Default) {
             loadApps(appFilter)
@@ -66,26 +68,26 @@ class AppListViewModel @Inject constructor(application: Application) :
 
     private suspend fun loadApps(appFilter: AppFilter) {
         TraceHelper.beginSection("loadApps")
-        val appApps = ApplicationManager.getInstallApps().values.toList()
+        allApps = ApplicationManager.getInstallApps(application).values.toList()
         val resultApps = when (appFilter) {
             AppFilter.ALL -> {
-                appApps
+                allApps
             }
 
             AppFilter.USER -> {
-                appApps.filter {
+                allApps.filter {
                     !it.isSystemApp()
                 }.toList()
             }
 
             AppFilter.SYSTEM -> {
-                appApps.filter {
+                allApps.filter {
                     it.isSystemApp()
                 }.toList()
             }
 
             AppFilter.FROZEN -> {
-                appApps.filter {
+                allApps.filter {
                     !it.enable
                 }.toList()
             }
@@ -95,61 +97,29 @@ class AppListViewModel @Inject constructor(application: Application) :
                     emptyList()
                 }
             }
-
-            else -> {
-                emptyList()
-            }
         }
         viewModelState.update {
-            it.copy(allApps = resultApps)
+            it.copy(apps = resultApps, appFilter = appFilter)
         }
         TraceHelper.endSection("loadApps")
     }
 
     fun searchApps(searchWords: String) {
         viewModelScope.launch(Dispatchers.Default) {
+            val result = allApps.filter {
+                searchWords.isEmpty()
+                        || it.packageName.contains(searchWords, true)
+                        || it.appName?.contains(searchWords, true) ?: false
+            }.filter {
+                !it.applicationInfo?.sourceDir.isNullOrEmpty()
+            }.sortedBy {
+                it.appName
+            }
             viewModelState.update {
-                it.copy(searchedApps = filterApp(it.allApps, searchWords))
+                it.copy(searchedApps = result)
             }
         }
     }
-
-    // --------------------------------------------------
-//    fun extractApp(): Flow<String> {
-//        TraceHelper.beginSection("extractApp")
-//        return flowOf(appData.value)
-//            .filter {
-//                it.isNotEmpty()
-//            }.map { dataList ->
-//                FileUtil.deleteFile(extractPkgsFile)
-//                FileUtil.deleteFile(extractFile)
-//                FileUtil.deleteFile(jsonExtractFile)
-//                val pkgBuilder = StringBuilder()
-//                val xmlBuilder = StringBuilder()
-//                val jsonArray = JSONArray()
-//                for (entity in dataList) {
-//                    if (pkgBuilder.isNotEmpty()) {
-//                        pkgBuilder.append(",")
-//                    }
-//                    pkgBuilder.append("${entity.packageName}")
-//                    // --------------------------------------------------
-//                    if (xmlBuilder.isNotEmpty()) {
-//                        xmlBuilder.append("\n")
-//                    }
-//                    xmlBuilder.append("<item>${entity.packageName}</item><!--${entity.appName}-->")
-//                    //
-//                    val jsonObj = JSONObject()
-//                    jsonObj.put("name", entity.appName)
-//                    jsonObj.put("packageName", entity.packageName)
-//                    jsonArray.put(jsonObj)
-//                }
-//                FileUtil.writeToFile(extractPkgsFile, pkgBuilder.toString())
-//                FileUtil.writeToFile(extractFile, xmlBuilder.toString())
-//                FileUtil.writeToFile(jsonExtractFile, jsonArray.toString())
-//                TraceHelper.endSection("extractApp")
-//                baseDir
-//            }.flowOn(Dispatchers.IO)
-//    }
 
     // ------------------------------------------------------
     fun loadSdcardApk() {
@@ -177,39 +147,7 @@ class AppListViewModel @Inject constructor(application: Application) :
 //        }
     }
 
-    private fun filterApp(appList: Collection<AppShortcut>, matchStr: String): List<AppShortcut> {
-        return appList.filter {
-            matchStr.isEmpty()
-                    || it.packageName.contains(matchStr, true)
-                    || it.appName?.contains(matchStr, true) ?: false
-        }.filter {
-            !it.applicationInfo?.sourceDir.isNullOrEmpty()
-        }.sortedBy {
-            it.appName
-        }
-    }
-
     // --------------------------------------------------
-    private fun initEntity(appShortcut: AppShortcut?): AppShortcut? {
-        return appShortcut?.also {
-            val packageName = appShortcut.packageName
-            if (appShortcut.isInstalled) {
-                FileUtil.writeToFile(
-                    existsFile,
-                    "<item>$packageName</item><!--${appShortcut.appName}-->\n",
-                    true
-                )
-            } else {
-                FileUtil.writeToFile(unExistsFile, "<item>$packageName</item>\n", true)
-            }
-            FileUtil.writeToFile(
-                allFile,
-                "<item>$packageName</item><!--${appShortcut.appName}-->\n",
-                true
-            )
-        }
-    }
-
     fun clearSearchInfo() {
         viewModelState.update {
             it.copy(searchedApps = emptyList())
@@ -230,6 +168,7 @@ class AppListViewModel @Inject constructor(application: Application) :
     }
 
     private fun onAppChange(packageName: String) {
+        ZLog.i(ZTag.TAG, "onAppChange: $packageName")
         when (filterCondition) {
             AppFilter.ALL, AppFilter.USER, AppFilter.SYSTEM, AppFilter.FROZEN -> {
                 loadData(filterCondition)
@@ -255,52 +194,92 @@ class AppListViewModel @Inject constructor(application: Application) :
 }
 
 private data class AppViewModelState(
-    val allApps: List<AppShortcut> = emptyList(),
+    val apps: List<AppShortcut> = emptyList(),
     val searchedApps: List<AppShortcut> = emptyList(),
+    /** 过滤条件 */
+    val appFilter: AppFilter = AppFilter.ALL,
+
     /** 排序类型*/
     val sortType: AppSort = AppSort.Name,
 
     /** 是否反向排序 */
     val reverse: Boolean = false
 ) {
+
+    companion object {
+        private val appFilterList = listOf(
+            AppFilter.ALL,
+            AppFilter.USER,
+            AppFilter.SYSTEM,
+            AppFilter.FROZEN,
+            AppFilter.APK,
+        )
+    }
+
     fun toUiState(): AppUiState {
         val resultApp = when (sortType) {
             AppSort.Name -> {
                 // 反向: z-a；正向: a-z
-                if (reverse) allApps.sortedByDescending { it.appName } else allApps.sortedBy { it.appName }
+                if (reverse) apps.sortedByDescending { it.appName } else apps.sortedBy { it.appName }
             }
 
             AppSort.Size -> {
                 // 反向: 小 -> 大 ;正向:  大 -> 小
-                if (reverse) allApps.sortedBy { it.apkSize } else allApps.sortedByDescending { it.apkSize }
+                if (reverse) apps.sortedBy { it.apkSize } else apps.sortedByDescending { it.apkSize }
             }
 
             AppSort.InstallTime -> {
                 // 反向: 小 -> 大 ;正向:  大 -> 小
-                if (reverse) allApps.sortedBy { it.firstInstallTime } else allApps.sortedByDescending { it.firstInstallTime }
+                if (reverse) apps.sortedBy { it.firstInstallTime } else apps.sortedByDescending { it.firstInstallTime }
             }
 
             AppSort.UpdateTime -> {
                 // 反向: 小 -> 大 ;正向:  大 -> 小
-                if (reverse) allApps.sortedBy { it.lastUpdateTime } else allApps.sortedByDescending { it.lastUpdateTime }
+                if (reverse) apps.sortedBy { it.lastUpdateTime } else apps.sortedByDescending { it.lastUpdateTime }
             }
         }
-        ZLog.i(ZTag.TAG, "resultApp: ${resultApp.size}")
-        repeat(10.coerceAtMost(resultApp.size)) {
-            ZLog.i(ZTag.TAG, "app: ${resultApp[it]}")
-        }
         return AppUiState.AppList(
-            apps = resultApp,
+            apps = sortApps(),
             searchedApps = searchedApps,
+            appFilterList = appFilterList,
+            appFilter = appFilter,
             sortType = sortType
         )
     }
+
+    private fun sortApps(): List<AppShortcut> {
+        return when (sortType) {
+            AppSort.Name -> {
+                // 反向: z-a；正向: a-z
+                if (reverse) apps.sortedByDescending { it.appName } else apps.sortedBy { it.appName }
+            }
+
+            AppSort.Size -> {
+                // 反向: 小 -> 大 ;正向:  大 -> 小
+                if (reverse) apps.sortedBy { it.apkSize } else apps.sortedByDescending { it.apkSize }
+            }
+
+            AppSort.InstallTime -> {
+                // 反向: 小 -> 大 ;正向:  大 -> 小
+                if (reverse) apps.sortedBy { it.firstInstallTime } else apps.sortedByDescending { it.firstInstallTime }
+            }
+
+            AppSort.UpdateTime -> {
+                // 反向: 小 -> 大 ;正向:  大 -> 小
+                if (reverse) apps.sortedBy { it.lastUpdateTime } else apps.sortedByDescending { it.lastUpdateTime }
+            }
+        }
+    }
+
+
 }
 
 sealed class AppUiState {
     data class AppList(
         val apps: List<AppShortcut>,
         val searchedApps: List<AppShortcut>,
+        val appFilterList: List<AppFilter>,
+        val appFilter: AppFilter,
         val sortType: AppSort
     ) : AppUiState()
 }

@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import com.zaze.apps.base.AbsAndroidViewModel
-import com.zaze.apps.base.BaseApplication
 import kotlin.reflect.KClass
 
 class MyViewModelLazy<VM : ViewModel>(
@@ -60,7 +59,7 @@ open class ViewModelFactory(private val application: Application?, private val d
         return if (application != null && AbsAndroidViewModel::class.java.isAssignableFrom(modelClass)) {
             try {
                 modelClass.getConstructor(Application::class.java)
-                    .newInstance(BaseApplication.getInstance())
+                    .newInstance(application)
             } catch (e: Exception) {
                 throw RuntimeException("zz Cannot create an instance of $modelClass", e)
             }

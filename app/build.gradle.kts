@@ -22,10 +22,27 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("android_zaze.keystore")
+            storePassword = "3184582"
+            keyAlias = "android"
+            keyPassword = "3184582"
+        }
+        create("release") {
+            storeFile = file("android_zaze.keystore")
+            storePassword = "3184582"
+            keyAlias = "android"
+            keyPassword = "3184582"
+        }
+    }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 
     buildFeatures {
@@ -62,7 +79,6 @@ dependencies {
     androidTestImplementation(composeBom)
 
 
-
     // region hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
@@ -84,7 +100,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
 
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     // Android Studio Preview support
     debugImplementation(libs.androidx.compose.ui.tooling)

@@ -4,7 +4,7 @@ sealed class AppFilter(val name: String) {
     /**
      * 全部
      */
-    object ALL : AppFilter("全部应用")
+    object ALL : AppFilter("所有应用")
 
     /** 用户 */
     object USER : AppFilter("用户应用")

@@ -41,11 +41,11 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class AppListFragment : AbsFragment(), MenuProvider, AppOperator {
 
-    private val viewModel: AppListViewModel by activityViewModels()
     private lateinit var binding: FragmentAppListBinding
     private lateinit var appListAdapter: AppListAdapter
-    override val showLifeCycle: Boolean
-        get() = true
+    private lateinit var appFilterAdapter: AppFilterAdapter
+
+    private val viewModel: AppListViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,9 +82,7 @@ class AppListFragment : AbsFragment(), MenuProvider, AppOperator {
                         is AppUiState.AppList -> {
                             binding.appCountTv.text = "查询到 ${it.apps.size}个应用"
                             appListAdapter.submitList(it.apps, it.sortType)
-                        }
-
-                        else -> {
+                            appFilterAdapter.submitList(it.appFilterList, it.appFilter)
                         }
                     }
                 }
@@ -99,17 +97,8 @@ class AppListFragment : AbsFragment(), MenuProvider, AppOperator {
 //                StaggeredGridLayoutManager(5, StaggeredGridLayoutManager.VERTICAL)
             layoutManager =
                 LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
-            adapter = AppFilterAdapter(viewModel::loadData).also {
-                it.submitList(
-                    listOf(
-                        AppFilter.ALL,
-                        AppFilter.USER,
-                        AppFilter.SYSTEM,
-                        AppFilter.FROZEN,
-                        AppFilter.APK,
-                    )
-                )
-            }
+            appFilterAdapter = AppFilterAdapter(viewModel::loadData)
+            adapter = appFilterAdapter
         }
     }
 

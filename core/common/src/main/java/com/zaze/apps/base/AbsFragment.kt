@@ -4,8 +4,8 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.DimenRes
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
-import com.zaze.apps.widget.loading.LoadingDialog
-import com.zaze.apps.widget.loading.LoadingView
+import com.zaze.core.common.widget.loading.LoadingDialog
+import com.zaze.core.common.widget.loading.LoadingView
 import com.zaze.core.common.R
 import com.zaze.core.ext.hideKeyboard
 import com.zaze.utils.ToastUtil
@@ -15,7 +15,7 @@ import com.zaze.utils.ToastUtil
  * @author : ZAZE
  * @version : 2018-11-30 - 00:00
  */
-abstract class AbsFragment : AbsViewModelFragment {
+abstract class AbsFragment : AbsPermissionFragment {
     constructor() : super()
     constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
@@ -79,7 +79,9 @@ abstract class AbsFragment : AbsViewModelFragment {
 
     fun progress(message: String? = null) {
         if (message == null) {
-            loadingLazy.value.dismiss()
+            if(loadingLazy.isInitialized()) {
+                loadingLazy.value.dismiss()
+            }
         } else {
             loadingLazy.value.setText(message).show()
         }

@@ -6,8 +6,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.zaze.apps.appwidgets.WidgetHostViewLoader
 import com.zaze.apps.base.AbsActivity
 import com.zaze.apps.databinding.ActivityMainBinding
-import com.zaze.apps.ext.gone
-import com.zaze.apps.ext.visible
 import com.zaze.core.ext.currentNavFragment
 import com.zaze.core.ext.findNavController
 import com.zaze.utils.log.ZLog
@@ -34,8 +32,13 @@ class MainActivity : AbsActivity() {
                 // scrollToTop()
             }
         }
+//        binding.bottomNav.setOnItemSelectedListener {
+//            ZLog.i(ZTag.TAG, "destination: ${it}")
+//            true
+//        }
         val navGraph = navController.graph
         navController.addOnDestinationChangedListener { controller, destination, _ ->
+            ZLog.i(ZTag.TAG, "destination: $destination")
 //            if (destination.id == navGraph.startDestinationId) {
 //                currentNavFragment(R.id.fragment_container)?.enterTransition = null
 //            }

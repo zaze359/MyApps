@@ -6,9 +6,8 @@ pluginManagement {
                 url = uri("http://localhost:8081/repository/maven-public")
             }
         }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/jcenter") }
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        mavenLocal()
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -17,7 +16,6 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    //
     repositories {
         if (extra.has("useLocalMaven") && (extra["useLocalMaven"] as String).toBoolean()) {
             maven {
