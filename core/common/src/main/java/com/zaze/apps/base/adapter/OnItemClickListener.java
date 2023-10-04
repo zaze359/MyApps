@@ -2,6 +2,8 @@ package com.zaze.apps.base.adapter;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * Description :
  *
@@ -14,7 +16,6 @@ public interface OnItemClickListener<V> {
      *
      * @param view     view
      * @param value    value
-     * @param position position
      */
-    void onItemClick(View view, V value, int position);
+    void onItemClick(@NonNull View view, V value);
 }

@@ -11,21 +11,25 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.zaze.apps.applist.AppListAdapter
+import com.zaze.apps.applist.AppListFragmentDirections
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppSearchBinding
 import com.zaze.apps.ext.initToolbar
 import com.zaze.apps.applist.AppListViewModel
 import com.zaze.apps.applist.AppUiState
+import com.zaze.apps.base.adapter.OnItemClickListener
+import com.zaze.apps.utils.AppShortcut
 import com.zaze.core.ext.focusAndShowKeyboard
 import com.zaze.core.ext.hideKeyboard
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class AppSearchFragment : AbsFragment() {
+class AppSearchFragment : AbsFragment(), OnItemClickListener<AppShortcut> {
 
     private var _binding: FragmentAppSearchBinding? = null
     private val binding get() = _binding!!
@@ -79,7 +83,7 @@ class AppSearchFragment : AbsFragment() {
     }
 
     private fun setupRecyclerView() {
-        appListAdapter = AppListAdapter()
+        appListAdapter = AppListAdapter(this)
 //        appListAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
 //            override fun onChanged() {
 //                super.onChanged()
@@ -121,5 +125,10 @@ class AppSearchFragment : AbsFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         viewModel.clearSearchInfo()
+    }
+
+    override fun onItemClick(view: View, value: AppShortcut?) {
+        view.findNavController()
+            .navigate(AppListFragmentDirections.appDetailAction(value?.packageName ?: ""))
     }
 }

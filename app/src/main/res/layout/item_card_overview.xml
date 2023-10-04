@@ -42,6 +42,7 @@
             app:layout_constraintBottom_toTopOf="@id/overview_btn"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            tools:text="@tools:sample/backgrounds/scenic"
             app:layout_constraintTop_toBottomOf="@id/overview_title_tv" />
 
         <Button

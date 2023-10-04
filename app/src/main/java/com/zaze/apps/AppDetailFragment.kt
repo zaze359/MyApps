@@ -26,7 +26,8 @@ import kotlinx.coroutines.launch
  * @version : 2021-08-04 - 09:24
  */
 class AppDetailFragment : AbsFragment() {
-    private lateinit var binding: FragmentAppDetailBinding
+    private var _binding: FragmentAppDetailBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: AppDetailViewModel by viewModels()
     private val bindAppwidgetRequest =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -41,12 +42,14 @@ class AppDetailFragment : AbsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAppDetailBinding.inflate(inflater, container, false)
+        _binding = FragmentAppDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val safeArgs: AppDetailFragmentArgs by navArgs()
+
         initToolbar(binding.appBarLayout.toolbar) {
             setTitle(R.string.app_detail)
             it.setNavigationOnClickListener {
@@ -55,7 +58,11 @@ class AppDetailFragment : AbsFragment() {
         }
         binding.appDetailRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.appDirRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val safeArgs: AppDetailFragmentArgs by navArgs()
+
+        binding.appMoreBtn.setOnClickListener {
+            
+        }
+
         lifecycleScope.launch {
             viewModel.appShortcut.collect { app ->
                 app?.let {

@@ -12,20 +12,18 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.Orientation
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.zaze.apps.AppOperator
 import com.zaze.apps.MenuHandler
-import com.zaze.apps.MenuHandler.handlenMenuItemSelected
+import com.zaze.apps.MenuHandler.handleMenuItemSelected
 import com.zaze.apps.R
 import com.zaze.apps.base.AbsFragment
-import com.zaze.apps.data.AppFilter
+import com.zaze.apps.base.adapter.OnItemClickListener
 import com.zaze.apps.data.AppSort
 import com.zaze.apps.databinding.FragmentAppListBinding
-import com.zaze.apps.ext.onClick
 import com.zaze.apps.ext.setupActionBar
 import com.zaze.apps.utils.AppShortcut
 import com.zaze.core.ext.normalNavOptions
@@ -39,7 +37,7 @@ import kotlinx.coroutines.launch
  * @version : 2017-04-17 05:15 1.0
  */
 @AndroidEntryPoint
-class AppListFragment : AbsFragment(), MenuProvider, AppOperator {
+class AppListFragment : AbsFragment(), MenuProvider, AppOperator, OnItemClickListener<AppShortcut> {
 
     private lateinit var binding: FragmentAppListBinding
     private lateinit var appListAdapter: AppListAdapter
@@ -104,7 +102,7 @@ class AppListFragment : AbsFragment(), MenuProvider, AppOperator {
 
     private fun setupAppListRecycleView() {
         binding.appListRecycleView.layoutManager = LinearLayoutManager(requireContext())
-        appListAdapter = AppListAdapter()
+        appListAdapter = AppListAdapter(this)
         binding.appListRecycleView.adapter = appListAdapter
         binding.appListRecycleView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -150,10 +148,13 @@ class AppListFragment : AbsFragment(), MenuProvider, AppOperator {
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if (handlenMenuItemSelected(menuItem)) {
+        if (handleMenuItemSelected(menuItem)) {
             return true
         }
         return MenuHandler.handleAppSortOrder(menuItem, viewModel::sortBy)
     }
-
+    override fun onItemClick(view: View, value: AppShortcut?) {
+        view.findNavController()
+            .navigate(AppListFragmentDirections.appDetailAction(value?.packageName ?: ""))
+    }
 }

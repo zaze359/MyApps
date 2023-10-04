@@ -156,7 +156,7 @@ object ApplicationManager {
      * @param packageName packageName
      * @return AppShortcut
      */
-    private fun initAppShortcut(
+    fun initAppShortcut(
         context: Context,
         packageName: String,
         packageInfo: PackageInfo?

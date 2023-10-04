@@ -1,4 +1,4 @@
-package com.zaze.apps
+package com.zaze.apps.appwidgets
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -11,14 +11,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.zaze.apps.R
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppWidgetsBinding
-import com.zaze.apps.ext.initToolbar
 import com.zaze.apps.ext.setupActionBar
 import com.zaze.apps.viewmodels.AppWidgetsViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

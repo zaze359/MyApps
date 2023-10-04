@@ -2,14 +2,13 @@ package com.zaze.apps
 
 import android.view.Menu
 import android.view.MenuItem
-import android.view.SubMenu
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.zaze.apps.data.AppSort
 import com.zaze.core.ext.normalNavOptions
 
 object MenuHandler {
-    fun Fragment.handlenMenuItemSelected(item: MenuItem): Boolean {
+    fun Fragment.handleMenuItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
                 findNavController().navigate(R.id.settings_fragment, null, normalNavOptions)

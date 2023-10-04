@@ -10,21 +10,23 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.zaze.apps.MenuHandler.handleMenuItemSelected
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentOverviewBinding
 import com.zaze.apps.adapters.CardsAdapter
 import com.zaze.apps.ext.setupActionBar
 import com.zaze.apps.utils.AppUsageHelper
+import com.zaze.apps.viewmodels.OverviewAction
 import com.zaze.apps.viewmodels.OverviewViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -65,25 +67,39 @@ class OverviewFragment : AbsFragment(), MenuProvider {
         binding.overviewRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         cardsAdapter = CardsAdapter()
         binding.overviewRecyclerView.adapter = cardsAdapter
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect {
-                    ZLog.i(ZTag.TAG, "it.moveToTop:${it.moveToTop}")
-                    cardsAdapter.submitList(it.cards)
-                    if (it.moveToTop) {
+                viewModel.uiState.collect { state ->
+                    cardsAdapter.submitList(state.cards)
+                    if (state.moveToTop) {
                         binding.overviewRecyclerView.smoothScrollToPosition(0)
                     }
+                    when(val action = state.action) {
+                        OverviewAction.JumpToAppListFragment -> {
+                            val navController = requireActivity().findNavController(R.id.fragment_container)
+                            val builder = NavOptions.Builder().setLaunchSingleTop(true).setRestoreState(true)
+                            builder.setPopUpTo(
+                                navController.graph.findStartDestination().id,
+                                inclusive = false,
+                                saveState = true
+                            )
+                            navController.navigate(R.id.app_list_fragment, null, builder.build())
+                        }
+                        OverviewAction.RequestAppUsagePermission -> {
+                            AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
+                        }
+                        is OverviewAction.StartActivity -> {
+                            startActivity(action.intent)
+                        }
+                        OverviewAction.None ->{
+
+                        }
+                    }
+                    ZLog.i(ZTag.TAG, "state.action:${state.action}")
+                    viewModel.actionHandled(state.action)
                 }
             }
-        }
-        viewModel.showAppsAction.observe(viewLifecycleOwner) {
-            findNavController().navigate(R.id.app_list_fragment)
-        }
-        viewModel.requestAppUsagePermissionAction.observe(viewLifecycleOwner) {
-            AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
-        }
-        viewModel.settingsAction.observe(viewLifecycleOwner) {
-            startActivity(it)
         }
         viewModel.loadOverview()
     }
@@ -94,7 +110,7 @@ class OverviewFragment : AbsFragment(), MenuProvider {
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return true
+        return handleMenuItemSelected(menuItem)
     }
 
     override fun onDestroyView() {

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.App
 import com.zaze.apps.R
 import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.base.adapter.OnItemClickListener
 import com.zaze.apps.data.AppSort
 import com.zaze.apps.databinding.ItemAppListBinding
 import com.zaze.apps.utils.AppShortcut
@@ -23,7 +24,7 @@ import com.zaze.utils.date.DateUtil
  *
  * @version : 2017-04-17 - 17:21
  */
-class AppListAdapter :
+class AppListAdapter(private val onItemClickListener: OnItemClickListener<AppShortcut>) :
     AbsRecyclerAdapter<AppShortcut, AppListAdapter.PackageHolder>(diffCallback) {
     companion object {
         private val diffCallback = object : DiffUtil.ItemCallback<AppShortcut>() {
@@ -97,17 +98,10 @@ class AppListAdapter :
             }
 
             binding.root.setOnClickListener {
-//                AppUtil.getAppMetaData(context, packageName)?.let { bundle ->
-//                    bundle.keySet().forEach {
-//                        ZLog.i(ZTag.TAG, "$it >> ${bundle.get(it)}")
-//                    }
-//                }
-
-                it.findNavController().navigate(R.id.app_detail_fragment, Bundle().apply {
-                    putString("packageName", value.packageName)
-                }, normalNavOptions)
-//                it.findNavController()
-//                    .navigate(AppListFragmentDirections.appDetailAction(value.packageName))
+                onItemClickListener.onItemClick(it, value)
+//                it.findNavController().navigate(R.id.app_detail_fragment, Bundle().apply {
+//                    putString("packageName", value.packageName)
+//                }, normalNavOptions)
             }
         }
     }

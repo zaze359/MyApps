@@ -8,10 +8,9 @@ import com.zaze.apps.App
 import com.zaze.apps.R
 import com.zaze.apps.base.AbsAndroidViewModel
 import com.zaze.apps.data.Card
-import com.zaze.apps.ext.action
+import com.zaze.apps.utils.AppShortcut
 import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.utils.ApplicationManager
-import com.zaze.core.common.utils.SingleLiveEvent
 import com.zaze.utils.DescriptionUtil
 import com.zaze.utils.TraceHelper
 import com.zaze.utils.log.ZLog
@@ -33,20 +32,27 @@ import kotlinx.coroutines.launch
  * @version : 2021-08-02 - 15:36
  */
 class OverviewViewModel(application: Application) : AbsAndroidViewModel(application) {
-    val showAppsAction = SingleLiveEvent<Unit>()
-    val requestAppUsagePermissionAction = SingleLiveEvent<Unit>()
-    val settingsAction = SingleLiveEvent<Intent>()
+    private var isFirstLoad = true
 
-    var isFirstLoad = true
-
-    //    private val viewModelState = MutableStateFlow(AppViewModelState())
-//    val uiState = viewModelState.map(AppViewModelState::toUiState).stateIn(
-//        viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState()
-//    )
     private val viewModelState = MutableStateFlow(OverviewViewModelState())
     val uiState = viewModelState.map(OverviewViewModelState::toUiState)
         .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
 
+
+    //    fun loadSync() {
+//        val installedApps = ApplicationManager.getInstallApps(application).values.toList().sortedByDescending {
+//            it.lastUpdateTime
+//        }
+//        viewModelState.update {
+//            val new = it.copy(
+//                appsCard = loadAppUsage(),
+//                usageAccessPermissionCard = loadAppUsage(),
+//                storageCard = loadStorageInfo(installedApps),
+//                newUpdateAppCard = loadNews(installedApps),
+//            )
+//            new
+//        }
+//    }
     fun loadOverview() {
         viewModelScope.launch(Dispatchers.Default) {
             TraceHelper.beginSection("loadOverview")
@@ -57,61 +63,112 @@ class OverviewViewModel(application: Application) : AbsAndroidViewModel(applicat
             }
             async {
                 viewModelState.update {
-                    it.copy(usageAccessPermissionCard = if (!AppUsageHelper.checkAppUsagePermission(
-                            application
-                        )
-                    ) {
-                        ZLog.i(ZTag.TAG, "checkAppUsagePermission: denied")
-                        Card.Overview(
-                            title = "Usage access denied",
-                            content = "授予使用情况访问权限已启用更多功能",
-                            iconRes = R.drawable.ic_assessment,
-                            actionName = "GO", doAction = {
-                                requestAppUsagePermissionAction.action()
-                            }
-                        )
-                    } else {
-                        null
-                    })
+                    it.copy(usageAccessPermissionCard = loadAppUsage())
                 }
             }.start()
-            //
+            // --------------------------------------------------
             val installedApps = loadAppsAsync.await()
-            val allAppSize = installedApps.size
-            val systemAppSize = installedApps.count {
-                it.isSystemApp()
-            }
-            val appsCard = Card.Overview(
-                title = "应用统计: ${allAppSize}个",
-                content = "${allAppSize - systemAppSize}个用户应用  ${systemAppSize}个系统应用",
-                iconRes = R.drawable.ic_assessment,
-                doAction = {
-                    showAppsAction.action()
-                }
-            )
-            // --------------------------------------------------
-            val newUpdateAppCard = Card.Apps(
-                title = "最近更新和安装的应用",
-                apps = installedApps.subList(0, 10),
-                iconRes = R.drawable.ic_apps,
-            )
-
-            // --------------------------------------------------
-            val storageCardAsync = async {
-                val unit = StorageInfo.UNIT * StorageInfo.UNIT
-                val storageInfo = StorageLoader.loadStorageStats(App.getInstance())
-                val usedSpace = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
-//            val appsSpace = 0
+            arrayListOf(
+                async {
+                    viewModelState.update {
+                        it.copy(appsCard = loadAppCount(installedApps))
+                    }
+                },
                 // --------------------------------------------------
-                val transFun = { it: Int ->
-                    DescriptionUtil.toByteUnit(it.toLong() * unit)
+                async {
+                    viewModelState.update {
+                        it.copy(newUpdateAppCard = loadNews(installedApps))
+                    }
+                },
+                //
+                async {
+                    viewModelState.update {
+                        it.copy(
+                            storageCard = loadStorageInfo(installedApps),
+                        )
+                    }
                 }
-                val max = (storageInfo.totalBytes / unit).toInt()
-                Card.Progress(
-                    title = "存储情况",
-                    max = max,
-                    progress = usedSpace,
-                    trans = transFun,
+            ).forEach {
+                it.await()
+            }
+            // --------------------------------------------------
+            viewModelState.update {
+                val new = it.copy(
+                    moveToTop = isFirstLoad
+                )
+                isFirstLoad = false
+                new
+            }
+            TraceHelper.endSection("loadOverview")
+        }
+    }
+
+    /**
+     * 应用使用情况
+     */
+    private fun loadAppUsage(): Card? {
+        return if (!AppUsageHelper.checkAppUsagePermission(
+                application
+            )
+        ) {
+            ZLog.i(ZTag.TAG, "checkAppUsagePermission: denied")
+            Card.Overview(
+                title = "Usage access denied",
+                content = "授予使用情况访问权限已启用更多功能",
+                iconRes = R.drawable.ic_assessment,
+                actionName = "GO", doAction = {
+                    addAction(OverviewAction.RequestAppUsagePermission)
+                }
+            )
+        } else {
+            null
+        }
+    }
+
+    /**
+     * 应用数量统计
+     */
+    private fun loadAppCount(apps: List<AppShortcut>): Card {
+        val allAppSize = apps.size
+        val systemAppSize = apps.count {
+            it.isSystemApp()
+        }
+        return Card.Overview(
+            title = "应用统计: ${allAppSize}个",
+            content = "${allAppSize - systemAppSize}个用户应用  ${systemAppSize}个系统应用",
+            iconRes = R.drawable.ic_assessment,
+            doAction = {
+                addAction(OverviewAction.JumpToAppListFragment)
+            }
+        )
+    }
+
+    /**
+     * 最近更新/安装应用
+     */
+    private fun loadNews(apps: List<AppShortcut>): Card {
+        return Card.Apps(
+            title = "最近更新和安装的应用",
+            apps = apps.subList(0, 10),
+            iconRes = R.drawable.ic_apps,
+        )
+    }
+
+    private fun loadStorageInfo(apps: List<AppShortcut>): Card {
+        val unit = StorageInfo.UNIT * StorageInfo.UNIT
+        val storageInfo = StorageLoader.loadStorageStats(App.getInstance())
+        val usedSpace = ((storageInfo.totalBytes - storageInfo.freeBytes) / unit).toInt()
+//            val appsSpace = 0
+        // --------------------------------------------------
+        val transFun = { it: Int ->
+            DescriptionUtil.toByteUnit(it.toLong() * unit)
+        }
+        val max = (storageInfo.totalBytes / unit).toInt()
+        return Card.Progress(
+            title = "存储情况",
+            max = max,
+            progress = usedSpace,
+            trans = transFun,
 //                    subProgresses = listOf(
 //                        Card.Progress.Sub(
 //                            tag = "Apps",
@@ -126,24 +183,30 @@ class OverviewViewModel(application: Application) : AbsAndroidViewModel(applicat
 //                            progress = usedSpace - appsSpace
 //                        ),
 //                    ),
-                    doAction = {
-                        settingsAction.postValue(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
-                    }
-                )
+            doAction = {
+                addAction(OverviewAction.StartActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)))
             }
-            viewModelState.update {
-                val new = it.copy(
-                    appsCard = appsCard,
-                    storageCard = storageCardAsync.await(),
-                    newUpdateAppCard = newUpdateAppCard,
-                    moveToTop = isFirstLoad
-                )
-                isFirstLoad = false
-                new
-            }
-            TraceHelper.endSection("loadOverview")
+        )
+    }
+
+    private fun addAction(action: OverviewAction) {
+        viewModelState.update {
+            it.copy(
+                action = action
+            )
         }
     }
+    fun actionHandled(action: OverviewAction) {
+        if(action == OverviewAction.None) {
+            return
+        }
+        viewModelState.update {
+            it.copy(
+                action = OverviewAction.None
+            )
+        }
+    }
+
 
 //
 //    fun loadOverview(): Flow<List<Card>> {
@@ -200,7 +263,8 @@ private data class OverviewViewModelState(
     val appsCard: Card? = null,
     val usageAccessPermissionCard: Card? = null,
     val newUpdateAppCard: Card? = null,
-    val storageCard: Card? = null
+    val storageCard: Card? = null,
+    val action: OverviewAction = OverviewAction.None
 ) {
     fun toUiState(): OverviewUiState {
         val overviews = ArrayList<Card>()
@@ -208,7 +272,11 @@ private data class OverviewViewModelState(
         fillCard(overviews, usageAccessPermissionCard)
         fillCard(overviews, newUpdateAppCard)
         fillCard(overviews, storageCard)
-        return OverviewUiState(cards = overviews, moveToTop = moveToTop)
+        return OverviewUiState(
+            cards = overviews,
+            moveToTop = moveToTop,
+            action = action
+        )
     }
 
     fun fillCard(overviews: MutableList<Card>, card: Card?) {
@@ -218,4 +286,15 @@ private data class OverviewViewModelState(
     }
 }
 
-data class OverviewUiState(val cards: List<Card>, val moveToTop: Boolean)
+data class OverviewUiState(
+    val cards: List<Card>,
+    val moveToTop: Boolean,
+    val action: OverviewAction
+)
+
+sealed class OverviewAction {
+    object None : OverviewAction()
+    data class StartActivity(val intent: Intent) : OverviewAction()
+    object JumpToAppListFragment : OverviewAction()
+    object RequestAppUsagePermission : OverviewAction()
+}

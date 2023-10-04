@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.HomePagerFragmentDirections
 import com.zaze.apps.R
 import com.zaze.apps.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.OperationBean
@@ -142,8 +141,7 @@ class AppOperationWindow(private val context: Context, private val app: AppShort
                 title = "详情",
                 iconRes = R.drawable.ic_assignment,
                 action = {
-                    parentView.findNavController()
-                        .navigate(HomePagerFragmentDirections.appDetailAction(app.packageName))
+                    context.startActivity(SystemSettings.applicationDetailsSettings(app.packageName))
                     dismiss()
                 }
             ),
