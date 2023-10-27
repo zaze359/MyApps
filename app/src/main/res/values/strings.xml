@@ -7,11 +7,9 @@
     <string name="apps">应用</string>
 
     <string name="app_detail">应用详情</string>
-
     <string name="app_widgets">小组件</string>
-
-
     <string name="app_dirs">应用目录</string>
+    <string name="app_permissions">应用权限</string>
 
     <string name="home">home</string>
 

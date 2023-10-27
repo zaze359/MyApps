@@ -36,7 +36,7 @@ class OverviewViewModel(application: Application) : AbsAndroidViewModel(applicat
 
     private val viewModelState = MutableStateFlow(OverviewViewModelState())
     val uiState = viewModelState.map(OverviewViewModelState::toUiState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, OverviewUiState.NULL)
 
 
     //    fun loadSync() {
@@ -196,8 +196,9 @@ class OverviewViewModel(application: Application) : AbsAndroidViewModel(applicat
             )
         }
     }
+
     fun actionHandled(action: OverviewAction) {
-        if(action == OverviewAction.None) {
+        if (action == OverviewAction.None) {
             return
         }
         viewModelState.update {
@@ -272,7 +273,7 @@ private data class OverviewViewModelState(
         fillCard(overviews, usageAccessPermissionCard)
         fillCard(overviews, newUpdateAppCard)
         fillCard(overviews, storageCard)
-        return OverviewUiState(
+        return OverviewUiState.HasData(
             cards = overviews,
             moveToTop = moveToTop,
             action = action
@@ -286,11 +287,15 @@ private data class OverviewViewModelState(
     }
 }
 
-data class OverviewUiState(
-    val cards: List<Card>,
-    val moveToTop: Boolean,
-    val action: OverviewAction
-)
+
+sealed class OverviewUiState {
+    object NULL : OverviewUiState()
+    data class HasData(
+        val cards: List<Card>,
+        val moveToTop: Boolean,
+        val action: OverviewAction
+    ) : OverviewUiState()
+}
 
 sealed class OverviewAction {
     object None : OverviewAction()

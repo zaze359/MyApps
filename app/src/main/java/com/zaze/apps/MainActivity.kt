@@ -7,6 +7,7 @@ import androidx.annotation.IdRes
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.core.view.contains
 import androidx.core.view.forEach
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -74,6 +75,14 @@ class MainActivity : AbsActivity() {
                     destination: NavDestination,
                     arguments: Bundle?
                 ) {
+                    when(destination.id) {
+                        R.id.overview_fragment, R.id.app_list_fragment ->{
+                            binding.bottomNav.isVisible = true
+                        }
+                        else -> {
+                            binding.bottomNav.isVisible = false
+                        }
+                    }
                     val view = weakReference.get()
                     if (view == null) {
                         navController.removeOnDestinationChangedListener(this)

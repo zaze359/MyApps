@@ -24,6 +24,7 @@ import com.zaze.apps.adapters.CardsAdapter
 import com.zaze.apps.ext.setupActionBar
 import com.zaze.apps.utils.AppUsageHelper
 import com.zaze.apps.viewmodels.OverviewAction
+import com.zaze.apps.viewmodels.OverviewUiState
 import com.zaze.apps.viewmodels.OverviewViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
@@ -71,33 +72,41 @@ class OverviewFragment : AbsFragment(), MenuProvider {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    cardsAdapter.submitList(state.cards)
-                    if (state.moveToTop) {
-                        binding.overviewRecyclerView.smoothScrollToPosition(0)
-                    }
-                    when(val action = state.action) {
-                        OverviewAction.JumpToAppListFragment -> {
-                            val navController = requireActivity().findNavController(R.id.fragment_container)
-                            val builder = NavOptions.Builder().setLaunchSingleTop(true).setRestoreState(true)
-                            builder.setPopUpTo(
-                                navController.graph.findStartDestination().id,
-                                inclusive = false,
-                                saveState = true
-                            )
-                            navController.navigate(R.id.app_list_fragment, null, builder.build())
-                        }
-                        OverviewAction.RequestAppUsagePermission -> {
-                            AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
-                        }
-                        is OverviewAction.StartActivity -> {
-                            startActivity(action.intent)
-                        }
-                        OverviewAction.None ->{
+                    when(state) {
+                        OverviewUiState.NULL -> {
 
                         }
+                        is OverviewUiState.HasData -> {
+                            cardsAdapter.submitList(state.cards)
+                            if (state.moveToTop) {
+                                binding.overviewRecyclerView.smoothScrollToPosition(0)
+                            }
+                            when(val action = state.action) {
+                                OverviewAction.JumpToAppListFragment -> {
+                                    val navController = requireActivity().findNavController(R.id.fragment_container)
+                                    val builder = NavOptions.Builder().setLaunchSingleTop(true).setRestoreState(true)
+                                    builder.setPopUpTo(
+                                        navController.graph.findStartDestination().id,
+                                        inclusive = false,
+                                        saveState = true
+                                    )
+                                    navController.navigate(R.id.app_list_fragment, null, builder.build())
+                                }
+                                OverviewAction.RequestAppUsagePermission -> {
+                                    AppUsageHelper.requestAppUsagePermission(appUsagePermissionLauncher)
+                                }
+                                is OverviewAction.StartActivity -> {
+                                    startActivity(action.intent)
+                                }
+                                OverviewAction.None ->{
+
+                                }
+                            }
+                            ZLog.i(ZTag.TAG, "state.action:${state.action}")
+                            viewModel.actionHandled(state.action)
+                        }
                     }
-                    ZLog.i(ZTag.TAG, "state.action:${state.action}")
-                    viewModel.actionHandled(state.action)
+
                 }
             }
         }

@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,9 +17,11 @@ import com.zaze.apps.adapters.AppDetailAdapter
 import com.zaze.apps.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppDetailBinding
 import com.zaze.apps.ext.initToolbar
+import com.zaze.apps.viewmodels.AppDetailUiState
 import com.zaze.apps.viewmodels.AppDetailViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -60,29 +64,33 @@ class AppDetailFragment : AbsFragment() {
         binding.appDirRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         binding.appMoreBtn.setOnClickListener {
-            
+
         }
 
-        lifecycleScope.launch {
-            viewModel.appShortcut.collect { app ->
-                app?.let {
-                    binding.appNameTv.text = app.appName
-                    binding.appVersionNameTv.text = app.versionName
-                    binding.appIconIv.setImageBitmap(app.getAppIcon(context))
-                }
-            }
-        }
-        lifecycleScope.launch {
-            viewModel.appDetailItems.collect { items ->
-                binding.appDetailRecyclerView.adapter = AppDetailAdapter().apply {
-                    submitList(items)
-                }
-            }
-        }
-        lifecycleScope.launch {
-            viewModel.appDirs.collect { dirs ->
-                binding.appDirRecyclerView.adapter = AppDetailAdapter().apply {
-                    submitList(dirs)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collectLatest {appDetail ->
+                    when (appDetail) {
+                        AppDetailUiState.NULL -> {}
+                        is AppDetailUiState.App -> {
+                            //
+                            binding.appNameTv.text = appDetail.name
+                            binding.appVersionNameTv.text = appDetail.versionName
+                            binding.appIconIv.setImageBitmap(appDetail.appIcon)
+                            // 详情
+                            appDetail.appSummary?.let {
+                                binding.appDetailRecyclerView.adapter = AppDetailAdapter().apply {
+                                    submitList(it)
+                                }
+                            }
+                            // 目录
+                            appDetail.appDirs?.let {
+                                binding.appDirRecyclerView.adapter = AppDetailAdapter().apply {
+                                    submitList(it)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -100,7 +108,7 @@ class AppDetailFragment : AbsFragment() {
                 bind.startBindFlow(bindAppwidgetRequest)
             }
         }
-        viewModel.loadAppDetail(safeArgs.packageName)
+        viewModel.load(safeArgs.packageName)
 //        viewModel.preloadAppWidgets(safeArgs.packageName)
     }
 }
