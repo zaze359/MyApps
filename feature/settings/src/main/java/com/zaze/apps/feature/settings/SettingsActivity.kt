@@ -2,10 +2,10 @@ package com.zaze.apps.feature.settings
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
-import com.zaze.apps.base.AbsActivity
-import com.zaze.apps.ext.findFragment
-import com.zaze.apps.ext.replaceFragment
-import com.zaze.core.ext.findNavHostFragment
+import com.zaze.apps.core.base.AbsActivity
+import com.zaze.apps.core.ext.findFragment
+import com.zaze.apps.core.ext.replaceFragment
+import com.zaze.apps.core.ext.findNavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

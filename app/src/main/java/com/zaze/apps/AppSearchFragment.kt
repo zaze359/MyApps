@@ -17,15 +17,15 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.zaze.apps.applist.AppListAdapter
 import com.zaze.apps.applist.AppListFragmentDirections
-import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.core.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppSearchBinding
-import com.zaze.apps.ext.initToolbar
+import com.zaze.apps.core.ext.initToolbar
 import com.zaze.apps.applist.AppListViewModel
 import com.zaze.apps.applist.AppUiState
-import com.zaze.apps.base.adapter.OnItemClickListener
-import com.zaze.apps.utils.AppShortcut
-import com.zaze.core.ext.focusAndShowKeyboard
-import com.zaze.core.ext.hideKeyboard
+import com.zaze.apps.core.base.adapter.OnItemClickListener
+import com.zaze.core.common.utils.app.AppShortcut
+import com.zaze.apps.core.ext.focusAndShowKeyboard
+import com.zaze.apps.core.ext.hideKeyboard
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

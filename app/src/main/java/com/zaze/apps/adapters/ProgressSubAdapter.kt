@@ -3,7 +3,7 @@ package com.zaze.apps.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.Card
 import com.zaze.apps.databinding.ItemCardProgressSubBinding
 

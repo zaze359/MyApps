@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import com.zaze.apps.base.AbsFragment
-import com.zaze.apps.ext.initToolbar
+import com.zaze.apps.core.base.AbsFragment
+import com.zaze.apps.core.ext.initToolbar
 import com.zaze.apps.feature.settings.databinding.SettingsFragmentNavBinding
-import com.zaze.core.ext.findNavHostFragment
+import com.zaze.apps.core.ext.findNavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 /**

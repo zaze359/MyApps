@@ -1,4 +1,4 @@
-package com.zaze.apps.utils.thread
+package com.zaze.core.common.utils.thread
 
 import com.zaze.core.common.BuildConfig
 import com.zaze.utils.log.ZLog

@@ -3,11 +3,11 @@ package com.zaze.apps.applist
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.AppFilter
 import com.zaze.apps.data.AppSort
 import com.zaze.apps.databinding.ItemAppFilterBinding
-import com.zaze.apps.utils.AppShortcut
+import com.zaze.core.common.utils.app.AppShortcut
 
 
 class AppFilterAdapter(private val onItemClick: (AppFilter) -> Unit) :

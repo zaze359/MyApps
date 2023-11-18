@@ -1,7 +1,7 @@
 package com.zaze.apps.navigation
 
-import android.graphics.drawable.Icon
 import com.zaze.apps.R
+import com.zaze.core.designsystem.compose.icon.Icon
 
 /**
  * Description :
@@ -15,22 +15,33 @@ enum class TopLevelDestination(
     val iconTextId: Int,
     val titleTextId: Int
 ) {
-//    ONE(
-//        selectedIcon = Icon.ImageVectorIcon(MyIcons.ViewDay),
-//        unselectedIcon = Icon.ImageVectorIcon(MyIcons.ViewDay),
-//        iconTextId = R.string.app_name,
-//        titleTextId = R.string.app_name
-//    ),
-//    TWO(
-//        selectedIcon = Icon.ImageVectorIcon(MyIcons.Person),
-//        unselectedIcon = Icon.ImageVectorIcon(MyIcons.Person),
-//        iconTextId = R.string.app_name,
-//        titleTextId = R.string.app_name
-//    ),
-//    THREE(
-//        selectedIcon = Icon.ImageVectorIcon(MyIcons.Grid3x3),
-//        unselectedIcon = Icon.ImageVectorIcon(MyIcons.Grid3x3),
-//        iconTextId = R.string.app_name,
-//        titleTextId = R.string.app_name
-//    )
+    /**
+     * 概览
+     */
+    OVERVIEW(
+        selectedIcon = Icon.DrawableResourceIcon(R.drawable.ic_assessment),
+        unselectedIcon = Icon.DrawableResourceIcon(R.drawable.ic_assessment),
+        iconTextId = R.string.overview,
+        titleTextId = R.string.overview
+    ),
+
+    /**
+     * 应用列表
+     */
+    APPS(
+        selectedIcon = Icon.DrawableResourceIcon(R.drawable.ic_apps),
+        unselectedIcon = Icon.DrawableResourceIcon(R.drawable.ic_apps),
+        iconTextId = R.string.apps,
+        titleTextId = R.string.apps
+    ),
+
+    /**
+     * 消息
+     */
+    MESSAGE(
+        selectedIcon = Icon.DrawableResourceIcon(R.drawable.ic_message),
+        unselectedIcon = Icon.DrawableResourceIcon(R.drawable.ic_message),
+        iconTextId = R.string.message,
+        titleTextId = R.string.message
+    )
 }

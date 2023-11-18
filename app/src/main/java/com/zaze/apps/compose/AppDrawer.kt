@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.zaze.apps.R
 import com.zaze.apps.compose.data.Menu
 import com.zaze.apps.compose.data.drawerMenus
-import com.zaze.apps.theme.MyComposeTheme
-import com.zaze.core.designsystem.theme.MyTypography
+import com.zaze.apps.navigation.Screen
+import com.zaze.core.designsystem.compose.theme.MyComposeTheme
+import com.zaze.core.designsystem.compose.theme.MyTypography
 
 /**
  * Description :

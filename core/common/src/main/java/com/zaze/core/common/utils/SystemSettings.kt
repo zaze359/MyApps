@@ -1,4 +1,4 @@
-package com.zaze.apps.utils
+package com.zaze.core.common.utils
 
 import android.content.Intent
 import android.net.Uri

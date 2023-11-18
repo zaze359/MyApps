@@ -24,22 +24,28 @@ android {
     }
     signingConfigs {
         getByName("debug") {
-            storeFile = file("android_zaze.keystore")
-            storePassword = "3184582"
+            storeFile = file("android_demo.keystore")
+            storePassword = "123456"
             keyAlias = "android"
-            keyPassword = "3184582"
+            keyPassword = "123456"
         }
         create("release") {
-            storeFile = file("android_zaze.keystore")
-            storePassword = "3184582"
+            storeFile = file("android_demo.keystore")
+            storePassword = "123456"
             keyAlias = "android"
-            keyPassword = "3184582"
+            keyPassword = "123456"
         }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kapt {
+        correctErrorTypes = true
+        arguments {
+            arg("AROUTER_MODULE_NAME", project.name)
+        }
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -85,7 +91,6 @@ dependencies {
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.ext.compiler)
     // endregion hilt
-    implementation(libs.google.gson)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.google.android.material)
     implementation(libs.androidx.navigation.fragment)
@@ -114,9 +119,17 @@ dependencies {
 
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences)
-    implementation(project(":core:common"))
-    implementation(project(":feature:settings"))
 
+    implementation(project(":core:common"))
+    implementation(project(":core:router"))
+    implementation(project(":feature:settings"))
+    implementation(project(":feature:message"))
+
+    implementation(project(":core:designsystem"))
+
+
+//    implementation(libs.arouter.api)
+//    kapt(libs.arouter.compiler)
 
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 //    implementation 'androidx.core:core-ktx:1.3.2'

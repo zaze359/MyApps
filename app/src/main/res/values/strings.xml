@@ -5,6 +5,7 @@
 
     <string name="overview">概览</string>
     <string name="apps">应用</string>
+    <string name="message">消息</string>
 
     <string name="app_detail">应用详情</string>
     <string name="app_widgets">小组件</string>

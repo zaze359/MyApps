@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.data.AppDetailItem
 import com.zaze.apps.databinding.ItemAppDetailBinding
 import com.zaze.apps.feature.settings.model.SettingsItem

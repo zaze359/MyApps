@@ -14,9 +14,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.adapters.AppDetailAdapter
-import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.core.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppDetailBinding
-import com.zaze.apps.ext.initToolbar
+import com.zaze.apps.core.ext.initToolbar
 import com.zaze.apps.viewmodels.AppDetailUiState
 import com.zaze.apps.viewmodels.AppDetailViewModel
 import com.zaze.utils.log.ZLog

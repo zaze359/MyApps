@@ -1,4 +1,6 @@
-package com.zaze.apps.utils
+@file:Suppress("DEPRECATION")
+
+package com.zaze.core.common.utils
 
 import android.content.Context
 import android.util.DisplayMetrics

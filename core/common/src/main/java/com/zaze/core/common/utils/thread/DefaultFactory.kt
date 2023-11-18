@@ -1,4 +1,4 @@
-package com.zaze.apps.utils.thread
+package com.zaze.core.common.utils.thread
 
 import android.util.Log
 import java.util.concurrent.ThreadFactory

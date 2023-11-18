@@ -18,11 +18,11 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zaze.apps.MenuHandler.handleMenuItemSelected
-import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.core.base.AbsFragment
 import com.zaze.apps.databinding.FragmentOverviewBinding
 import com.zaze.apps.adapters.CardsAdapter
-import com.zaze.apps.ext.setupActionBar
-import com.zaze.apps.utils.AppUsageHelper
+import com.zaze.apps.core.ext.setupActionBar
+import com.zaze.core.common.utils.AppUsageHelper
 import com.zaze.apps.viewmodels.OverviewAction
 import com.zaze.apps.viewmodels.OverviewUiState
 import com.zaze.apps.viewmodels.OverviewViewModel

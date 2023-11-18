@@ -1,3 +1,4 @@
+//apply(from = "${project.rootDir}/buildscripts/module.gradle.kts")
 buildscript {
     dependencies {
         classpath(libs.gradle)

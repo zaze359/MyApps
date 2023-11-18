@@ -2,7 +2,9 @@ package com.zaze.apps.viewmodels
 
 import android.app.Application
 import android.appwidget.AppWidgetHostView
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.PermissionInfo
 import android.graphics.Bitmap
 import android.os.Build
@@ -13,11 +15,11 @@ import com.zaze.apps.appwidgets.LauncherAppWidgetProviderInfo
 import com.zaze.apps.appwidgets.PendingAddWidgetInfo
 import com.zaze.apps.appwidgets.WidgetHostViewLoader
 import com.zaze.apps.appwidgets.compat.AppWidgetManagerCompat
-import com.zaze.apps.base.AbsAndroidViewModel
-import com.zaze.apps.base.BaseApplication
+import com.zaze.apps.core.base.AbsAndroidViewModel
+import com.zaze.apps.core.base.BaseApplication
 import com.zaze.apps.data.AppDetailItem
-import com.zaze.apps.utils.AppShortcut
-import com.zaze.apps.utils.ApplicationManager
+import com.zaze.core.common.utils.app.AppShortcut
+import com.zaze.core.common.utils.app.ApplicationManager
 import com.zaze.utils.AppUtil
 import com.zaze.utils.FileUtil
 import com.zaze.utils.date.DateUtil
@@ -161,44 +163,75 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
     }
 
     private fun loadAppPermissions(app: AppShortcut) {
-        AppUtil.getPackageInfo(
+        val packageInfo = AppUtil.getPackageInfo(
             application,
             app.packageName,
             PackageManager.GET_PERMISSIONS
-        )?.permissions?.forEach {
-            ZLog.i(ZTag.TAG, "PERMISSION_GRANTED: ${it.packageName} >> ${it.name};")
+                    or PackageManager.GET_SERVICES
+                    or PackageManager.GET_ACTIVITIES
+                    or PackageManager.GET_RECEIVERS
+        )
+        val allPermission = HashSet<String?>()
+        packageInfo?.activities?.forEach {
+            ZLog.i(ZTag.TAG, "activities permission: ${it.permission} >> ${it.name};")
+            ZLog.i(ZTag.TAG, "----------------- flags: ${it.flags}")
+            allPermission.add(it.permission)
+        }
+        packageInfo?.receivers?.forEach {
+            ZLog.i(ZTag.TAG, "receivers permission: ${it.permission} >> ${it.name};")
+            ZLog.i(ZTag.TAG, "----------------- flags: ${it.flags}")
+            allPermission.add(it.permission)
+        }
+        packageInfo?.services?.forEach {
+            ZLog.i(ZTag.TAG, "services permission: ${it.permission} >> ${it.name};")
+            ZLog.i(ZTag.TAG, "----------------- flags: ${it.flags}")
+            allPermission.add(it.permission)
+        }
+        packageInfo?.permissions?.forEach {
+            ZLog.i(ZTag.TAG, "permissions: ${it.packageName} >> ${it.name};")
             ZLog.i(ZTag.TAG, "----------------- group: ${it.group}")
             ZLog.i(ZTag.TAG, "----------------- flags: ${it.flags}")
-            ZLog.i(ZTag.TAG, "----------------- it: ${it}")
+            allPermission.add(it.name)
         }
-        AppUtil.getPackageInfo(
-            application,
-            app.packageName,
-            PackageManager.GET_PERMISSIONS
-        )?.requestedPermissions?.forEach {
+        packageInfo?.requestedPermissions?.forEach {
+            allPermission.add(it)
+        }
+        val list = ArrayList<ZPermissionInfo>()
+
+        allPermission.forEach {
+            if (it.isNullOrEmpty()) {
+                return@forEach
+            }
             ZLog.i(
                 ZTag.TAG,
-                "requestedPermissions: $it; ${
-                    application.packageManager.checkPermission(
-                        it,
-                        app.packageName
-                    ) == PackageManager.PERMISSION_GRANTED
-                }"
+                "allPermission: $it; ${checkPermission(application, app.packageName, it)}"
             )
-            application.packageManager.getPermissionInfo(it, 0)?.let { info ->
+            val permissionInfo = try {
+                application.packageManager.getPermissionInfo(it, 0)
+            } catch (e: Throwable) {
                 ZLog.i(
                     ZTag.TAG,
-                    "----------------- loadDescription: ${info.loadDescription(application.packageManager)}"
+                    "not found: $it;"
+                )
+                null
+            }
+            permissionInfo?.let { info ->
+                try {
+                    getPermissionInfo(application, it)
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                }
+                ZLog.i(
+                    ZTag.TAG,
+                    "----------------- packageName: ${info.packageName}"
                 )
                 ZLog.i(
                     ZTag.TAG,
-                    "----------------- labelRes: ${
-                        application.packageManager.getText(
-                            app.packageName,
-                            info.labelRes,
-                            null
-                        )
-                    }"
+                    "----------------- nonLocalizedLabel: ${info.nonLocalizedLabel}"
+                )
+                ZLog.i(
+                    ZTag.TAG,
+                    "----------------- nonLocalizedDescription: ${info.nonLocalizedDescription}"
                 )
                 ZLog.i(ZTag.TAG, "----------------- group: ${info.group}")
                 val flags = when (info.flags) {
@@ -233,10 +266,9 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
                 ZLog.i(ZTag.TAG, "----------------- flags: ${flags}")
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    ZLog.i(ZTag.TAG, "----------------- protection: ${info.protection}")
                     val protection = when (info.protection) {
                         PermissionInfo.PROTECTION_DANGEROUS -> {
-                            "危险敏感权限"
+                            "危险敏感权限/运行时权限"
                         }
 
                         PermissionInfo.PROTECTION_INTERNAL -> {
@@ -248,17 +280,20 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
                         }
 
                         PermissionInfo.PROTECTION_SIGNATURE -> {
-                            "PROTECTION_SIGNATURE"
+                            "签名权限"
                         }
 
                         else -> {
                             "${info.protection}"
                         }
                     }
-                    ZLog.i(ZTag.TAG, "----------------- protection2: ${protection}")
+                    ZLog.i(
+                        ZTag.TAG,
+                        "----------------- protection: $protection; ${info.protection}"
+                    )
                     val protectionFlags = when (info.protectionFlags) {
                         PermissionInfo.PROTECTION_FLAG_APPOP -> {
-                            "PROTECTION_FLAG_APPOP"
+                            "APPOP/特殊权限"
                         }
 
                         PermissionInfo.PROTECTION_FLAG_DEVELOPMENT -> {
@@ -277,12 +312,56 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
                             "${info.protectionFlags}"
                         }
                     }
-                    ZLog.i(ZTag.TAG, "----------------- protection: ${protectionFlags}")
+                    ZLog.i(
+                        ZTag.TAG,
+                        "----------------- protectionFlags: $protectionFlags; ${info.protectionFlags}"
+                    )
+                    ZLog.i(ZTag.TAG, "----------------- protectionFlags: ${info.protection}")
                 }
-
             }
         }
     }
+
+    // region a
+
+    fun checkPermission(context: Context, packageName: String, permission: String): Boolean {
+        return context.packageManager.checkPermission(
+            permission,
+            packageName
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @Throws(NameNotFoundException::class)
+    fun getPermissionInfo(
+        context: Context,
+        permission: String
+    ): ZPermissionInfo {
+        return context.packageManager.run {
+            val permissionInfo = getPermissionInfo(permission, 0)
+            ZPermissionInfo(
+                permission = permission,
+                label = getLabel(context, permissionInfo),
+                description = getPermissionInfo(permission, 0).loadDescription(this)?.toString()
+            ).apply {
+                ZLog.i(ZTag.TAG, "----------------- permissionInfo: $this")
+            }
+        }
+    }
+
+    fun getLabel(context: Context, permissionInfo: PermissionInfo): String? {
+        if (permissionInfo.labelRes <= 0) return null
+        return try {
+            context.packageManager.getText(
+                permissionInfo.packageName,
+                permissionInfo.labelRes,
+                null
+            )?.toString()
+        } catch (e: Throwable) {
+            null
+        }
+    }
+
+    data class ZPermissionInfo(val permission: String, val label: String?, val description: String?)
 
     fun preloadAppWidgets(packageName: String) {
         viewModelScope.launch(Dispatchers.Default) {
@@ -311,6 +390,8 @@ class AppDetailViewModel(application: Application) : AbsAndroidViewModel(applica
             _appWidgets.emit(appWidgets)
         }
     }
+
+    // endregion a
 
     private suspend fun bindWidget() {
         if (waitingLoaders.empty()) {
@@ -366,4 +447,8 @@ sealed class AppDetailUiState {
         val appSummary: List<AppDetailItem>?,
         val appDirs: List<AppDetailItem>?,
     ) : AppDetailUiState()
+}
+
+sealed class AppDetailIntent {
+
 }

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.zaze.apps.utils.ApplicationManager
+import com.zaze.core.common.utils.app.ApplicationManager
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 

@@ -3,6 +3,7 @@ package com.zaze.apps.base
 import android.view.View
 import androidx.annotation.LayoutRes
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.zaze.apps.core.base.AbsFragment
 import com.zaze.apps.databinding.SlidingPanelLayoutBinding
 
 /**

@@ -6,10 +6,10 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.App
 import com.zaze.apps.OverviewFragmentDirections
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.databinding.ItemLatelyUpdateAppBinding
-import com.zaze.apps.ext.onClick
-import com.zaze.apps.utils.AppShortcut
+import com.zaze.apps.core.ext.onClick
+import com.zaze.core.common.utils.app.AppShortcut
 import com.zaze.utils.date.DateUtil
 
 /**

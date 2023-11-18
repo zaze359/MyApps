@@ -7,7 +7,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
 
 abstract class AbsMultiSelectAdapter<V : Any, H : RecyclerView.ViewHolder> :
     AbsRecyclerAdapter<V, H>, ActionMode.Callback {

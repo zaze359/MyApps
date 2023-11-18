@@ -57,6 +57,10 @@ dependencies {
 
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    api(libs.google.gson)
+
     api("io.github.zaze359:zaze-designsystem:1.0.0-SNAPSHOT")
     api("io.github.zaze359:zaze-utils:1.1.0-SNAPSHOT")
+
 }

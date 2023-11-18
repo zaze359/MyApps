@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.core.base.AbsFragment
 import com.zaze.apps.feature.settings.databinding.SettingsFragmentMainBinding
 import com.zaze.apps.feature.settings.adapter.MainSettingAdapter
 import com.zaze.apps.feature.settings.model.SettingsItem

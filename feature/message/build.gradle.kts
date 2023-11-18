@@ -2,12 +2,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kapt)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kapt)
 }
 
 android {
-    namespace = "com.zaze.message"
+    namespace = "com.zaze.apps.feature.message"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -30,6 +30,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    kapt {
+        correctErrorTypes = true
+        arguments {
+            arg("AROUTER_MODULE_NAME", project.name)
+        }
+    }
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -39,24 +45,32 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
+
+//    sourceSets {
+//        getByName("main") {
+//            manifest.srcFile("src/debug/AndroidManifest.xml")
+//        }
+//    }
+
 }
 
 dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.google.android.material)
+//    implementation(libs.google.android.material)
 
     implementation(project(":core:common"))
+    implementation(project(":core:router"))
+    implementation(project(":core:designsystem"))
+
     testImplementation(project(":core:testing"))
     androidTestImplementation(project(":core:testing"))
-
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.ext.compiler)
-
 
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
@@ -71,4 +85,7 @@ dependencies {
     implementation(libs.coil.kt)
     implementation(libs.coil.kt.svg)
     implementation(libs.coil.kt.compose)
+
+//    implementation(libs.arouter.api)
+//    kapt(libs.arouter.compiler)
 }

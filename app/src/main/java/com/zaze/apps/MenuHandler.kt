@@ -5,7 +5,7 @@ import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.zaze.apps.data.AppSort
-import com.zaze.core.ext.normalNavOptions
+import com.zaze.apps.core.ext.normalNavOptions
 
 object MenuHandler {
     fun Fragment.handleMenuItemSelected(item: MenuItem): Boolean {

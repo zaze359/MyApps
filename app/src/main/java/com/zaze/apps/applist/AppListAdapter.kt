@@ -1,20 +1,16 @@
 package com.zaze.apps.applist
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.zaze.apps.App
-import com.zaze.apps.R
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
-import com.zaze.apps.base.adapter.OnItemClickListener
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.OnItemClickListener
 import com.zaze.apps.data.AppSort
 import com.zaze.apps.databinding.ItemAppListBinding
-import com.zaze.apps.utils.AppShortcut
+import com.zaze.core.common.utils.app.AppShortcut
 import com.zaze.apps.widget.AppOperationMenu
-import com.zaze.core.ext.normalNavOptions
 import com.zaze.utils.DescriptionUtil
 import com.zaze.utils.date.DateUtil
 

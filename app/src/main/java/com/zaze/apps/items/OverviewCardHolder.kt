@@ -4,7 +4,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.zaze.apps.data.Card
 import com.zaze.apps.databinding.ItemCardOverviewBinding
-import com.zaze.apps.ext.onClick
+import com.zaze.apps.core.ext.onClick
 
 /**
  * Description :

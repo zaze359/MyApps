@@ -7,9 +7,9 @@ import android.view.View
 import android.widget.PopupMenu
 import com.google.android.material.snackbar.Snackbar
 import com.zaze.apps.R
-import com.zaze.apps.utils.AppShortcut
-import com.zaze.apps.utils.ApplicationManager
-import com.zaze.apps.utils.SystemSettings
+import com.zaze.core.common.utils.app.AppShortcut
+import com.zaze.core.common.utils.app.ApplicationManager
+import com.zaze.core.common.utils.SystemSettings
 import com.zaze.utils.FileUtil
 import com.zaze.utils.compress.ZipUtil
 import com.zaze.utils.ext.isAAB
@@ -78,7 +78,7 @@ class AppOperationMenu(
     private fun backupApp() {
         CoroutineScope(Dispatchers.IO).launch {
             val applicationInfo = app.applicationInfo ?: return@launch
-            if (app.applicationInfo.sourceDir.isNullOrEmpty()) {
+            if (applicationInfo.sourceDir.isNullOrEmpty()) {
                 showTip("【${app.appName}】 提取失败, 找不到APK文件")
                 return@launch
             }

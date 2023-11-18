@@ -1,4 +1,4 @@
-package com.zaze.apps.utils.thread
+package com.zaze.core.common.utils.thread
 
 import android.os.Handler
 import android.os.HandlerThread

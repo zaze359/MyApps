@@ -6,11 +6,11 @@ import android.provider.Settings
 import androidx.lifecycle.viewModelScope
 import com.zaze.apps.App
 import com.zaze.apps.R
-import com.zaze.apps.base.AbsAndroidViewModel
+import com.zaze.apps.core.base.AbsAndroidViewModel
 import com.zaze.apps.data.Card
-import com.zaze.apps.utils.AppShortcut
-import com.zaze.apps.utils.AppUsageHelper
-import com.zaze.apps.utils.ApplicationManager
+import com.zaze.core.common.utils.app.AppShortcut
+import com.zaze.core.common.utils.AppUsageHelper
+import com.zaze.core.common.utils.app.ApplicationManager
 import com.zaze.utils.DescriptionUtil
 import com.zaze.utils.TraceHelper
 import com.zaze.utils.log.ZLog

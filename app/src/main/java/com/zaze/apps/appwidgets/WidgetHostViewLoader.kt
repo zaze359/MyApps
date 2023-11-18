@@ -12,7 +12,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import com.zaze.apps.appwidgets.compat.AppWidgetManagerCompat
-import com.zaze.apps.base.BaseApplication
+import com.zaze.apps.core.base.BaseApplication
 
 class WidgetHostViewLoader(
     private val appWidgetHost: LauncherAppWidgetHost,

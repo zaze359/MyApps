@@ -2,7 +2,7 @@ package com.zaze.apps.data
 
 import android.graphics.Bitmap
 import androidx.annotation.DrawableRes
-import com.zaze.apps.utils.AppShortcut
+import com.zaze.core.common.utils.app.AppShortcut
 
 /**
  * Description :

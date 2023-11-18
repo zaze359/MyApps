@@ -3,12 +3,12 @@ package com.zaze.apps.applist
 import android.app.Application
 import android.os.Build
 import androidx.lifecycle.viewModelScope
-import com.zaze.apps.base.AbsAndroidViewModel
+import com.zaze.apps.core.base.AbsAndroidViewModel
 import com.zaze.apps.data.AppFilter
 import com.zaze.apps.data.AppSort
-import com.zaze.apps.utils.AppChangeListener
-import com.zaze.apps.utils.AppShortcut
-import com.zaze.apps.utils.ApplicationManager
+import com.zaze.core.common.utils.app.AppChangeListener
+import com.zaze.core.common.utils.app.AppShortcut
+import com.zaze.core.common.utils.app.ApplicationManager
 import com.zaze.utils.TraceHelper
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag

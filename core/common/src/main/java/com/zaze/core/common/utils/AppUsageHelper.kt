@@ -1,4 +1,4 @@
-package com.zaze.apps.utils
+package com.zaze.core.common.utils
 
 import android.app.AppOpsManager
 import android.app.usage.UsageStats
@@ -8,10 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import com.zaze.utils.date.DateUtil
 

@@ -5,6 +5,7 @@ import androidx.annotation.LayoutRes
 import androidx.navigation.NavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.zaze.apps.core.base.AbsActivity
 import com.zaze.apps.databinding.SlidingPanelLayoutBinding
 
 /**

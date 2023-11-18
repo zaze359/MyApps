@@ -7,12 +7,12 @@ import com.zaze.utils.log.ZTag
 
 class NotificationSettingsFragment : AbsSettingFragment() {
     override fun initPreferences() {
-        findPreference<CheckBoxPreference>("key_sound")?.setOnPreferenceChangeListener { preference, newValue ->
+        findPreference<CheckBoxPreference>("key_sound")?.setOnPreferenceChangeListener { _, newValue ->
             ZLog.i(ZTag.TAG_DEBUG, "key_sound: $newValue")
             true
         }
 
-        findPreference<CheckBoxPreference>("key_vibration")?.setOnPreferenceChangeListener { preference, newValue ->
+        findPreference<CheckBoxPreference>("key_vibration")?.setOnPreferenceChangeListener { _, newValue ->
             ZLog.i(ZTag.TAG_DEBUG, "key_vibration: $newValue")
             true
         }

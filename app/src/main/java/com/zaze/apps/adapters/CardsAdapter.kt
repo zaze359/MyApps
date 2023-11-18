@@ -2,8 +2,8 @@ package com.zaze.apps.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
-import com.zaze.apps.base.adapter.DataRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.DataRecyclerAdapter
 import com.zaze.apps.items.AppsCardHolder
 import com.zaze.apps.items.CardHolder
 import com.zaze.apps.data.Card

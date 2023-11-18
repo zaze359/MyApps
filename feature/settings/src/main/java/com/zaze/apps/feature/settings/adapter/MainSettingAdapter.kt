@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.zaze.apps.base.adapter.AbsRecyclerAdapter
+import com.zaze.apps.core.base.adapter.AbsRecyclerAdapter
 import com.zaze.apps.feature.settings.databinding.SettingsItemSettingsBinding
 import com.zaze.apps.feature.settings.model.SettingsItem
 import com.zaze.utils.log.ZLog

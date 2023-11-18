@@ -4,9 +4,9 @@ import android.appwidget.AppWidgetHostView
 import androidx.lifecycle.viewModelScope
 import com.zaze.apps.appwidgets.*
 import com.zaze.apps.appwidgets.compat.AppWidgetManagerCompat
-import com.zaze.apps.base.AbsViewModel
-import com.zaze.apps.base.BaseApplication
-import com.zaze.apps.utils.AppShortcut
+import com.zaze.apps.core.base.AbsViewModel
+import com.zaze.apps.core.base.BaseApplication
+import com.zaze.core.common.utils.app.AppShortcut
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import kotlinx.coroutines.Dispatchers

@@ -11,8 +11,8 @@
         android:icon="@drawable/ic_apps"
         android:title="@string/apps" />
 
-<!--    <item-->
-<!--        android:id="@+id/app_widgets_fragment"-->
-<!--        android:icon="@drawable/ic_assessment"-->
-<!--        android:title="@string/app_widgets" />-->
+    <item
+        android:id="@+id/message_fragment"
+        android:icon="@drawable/ic_chat"
+        android:title="@string/message" />
 </menu>

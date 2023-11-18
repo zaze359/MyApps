@@ -12,9 +12,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.zaze.apps.R
-import com.zaze.apps.base.AbsFragment
+import com.zaze.apps.core.base.AbsFragment
 import com.zaze.apps.databinding.FragmentAppWidgetsBinding
-import com.zaze.apps.ext.setupActionBar
+import com.zaze.apps.core.ext.setupActionBar
 import com.zaze.apps.viewmodels.AppWidgetsViewModel
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag

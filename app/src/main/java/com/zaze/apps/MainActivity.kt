@@ -2,28 +2,22 @@ package com.zaze.apps
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.annotation.IdRes
 import androidx.compose.ui.util.fastForEachReversed
-import androidx.core.view.contains
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.contains
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationBarView
 import com.zaze.apps.appwidgets.WidgetHostViewLoader
-import com.zaze.apps.base.AbsActivity
+import com.zaze.apps.core.base.AbsActivity
 import com.zaze.apps.databinding.ActivityMainBinding
-import com.zaze.core.ext.currentNavFragment
-import com.zaze.core.ext.findNavController
+import com.zaze.apps.core.ext.findNavController
 import com.zaze.utils.log.ZLog
 import com.zaze.utils.log.ZTag
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.ref.WeakReference
+
 
 @AndroidEntryPoint
 class MainActivity : AbsActivity() {
@@ -37,6 +31,10 @@ class MainActivity : AbsActivity() {
 
     private fun setupNavigationController() {
         val navController = findNavController(R.id.fragment_container)
+//        val provider = FragmentNavigator(this, supportFragmentManager, R.id.fragment_container)
+//        navController.graph.addDestination(provider.createDestination().apply {
+//            id = R.id.message_fragment
+//        })
 //        binding.bottomNav.setupWithNavController(navController)
         setupWithNavController(binding.bottomNav, navController)
         binding.bottomNav.setOnItemReselectedListener {
@@ -63,10 +61,14 @@ class MainActivity : AbsActivity() {
     ) {
         val weakReference = WeakReference(navigationBarView)
         navigationBarView.setOnItemSelectedListener { item ->
-            NavigationUI.onNavDestinationSelected(
+            val res = NavigationUI.onNavDestinationSelected(
                 item,
                 navController
             )
+            if (!res) {
+                //
+            }
+            true
         }
         navController.addOnDestinationChangedListener(
             object : NavController.OnDestinationChangedListener {
@@ -75,10 +77,11 @@ class MainActivity : AbsActivity() {
                     destination: NavDestination,
                     arguments: Bundle?
                 ) {
-                    when(destination.id) {
-                        R.id.overview_fragment, R.id.app_list_fragment ->{
+                    when (destination.id) {
+                        R.id.overview_fragment, R.id.app_list_fragment, R.id.message_fragment -> { // 顶层页面导航可见
                             binding.bottomNav.isVisible = true
                         }
+
                         else -> {
                             binding.bottomNav.isVisible = false
                         }
@@ -100,7 +103,7 @@ class MainActivity : AbsActivity() {
                 }
             })
     }
-
-    private fun NavDestination.matchDestination(@IdRes destId: Int): Boolean =
-        hierarchy.any { it.id == destId }
+//
+//    private fun NavDestination.matchDestination(@IdRes destId: Int): Boolean =
+//        hierarchy.any { it.id == destId }
 }

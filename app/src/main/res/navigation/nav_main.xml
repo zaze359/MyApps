@@ -80,4 +80,20 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/message_fragment"
+        android:name="com.zaze.apps.MessageFragment"
+        android:label="@string/message"
+        tools:layout="@layout/fragment_app_widgets">
+
+        <action
+            android:id="@+id/app_detail_action"
+            app:destination="@+id/app_detail_fragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
 </navigation>
