@@ -88,7 +88,7 @@ class AppSearchFragment : AbsFragment(), OnItemClickListener<AppShortcut> {
 //            override fun onChanged() {
 //                super.onChanged()
 //                // 需要 调用 notifyDataSetChanged() 才会由回调。
-//                // 使用 diffUtil 时不会调用，所以无回调
+//                // 使用 diffUtil 时不会调用，所以无回调, diffUtil会比对list，同一个list对象会不更新。
 //                binding.empty.isVisible = appListAdapter.itemCount < 1
 //            }
 //        })

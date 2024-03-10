@@ -89,6 +89,12 @@ class AppDetailFragment : AbsFragment() {
                                     submitList(it)
                                 }
                             }
+                            // 权限
+//                            appDetail.appPermissions?.let {
+//                                binding.appPermissionsRecyclerView.adapter = AppDetailAdapter().apply {
+//                                    submitList(it)
+//                                }
+//                            }
                         }
                     }
                 }

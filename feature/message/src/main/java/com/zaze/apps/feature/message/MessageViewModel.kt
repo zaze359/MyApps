@@ -67,7 +67,7 @@ class MessageViewModel @Inject constructor(application: Application) :
 
     init {
         viewModelScope.launch {
-            repeat(100) {
+            repeat(10) {
                 addChatRoom(
                     ChatRoom(
                         id = "$it",
